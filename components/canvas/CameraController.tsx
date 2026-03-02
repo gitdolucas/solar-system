@@ -10,7 +10,7 @@ import { PLANETS } from '@/lib/data/planets'
 import { MOONS } from '@/lib/data/moons'
 import { PlanetRefsContext } from './Scene'
 
-const SUN_CAM_POSITION = new THREE.Vector3(0, 35, 100)
+const SUN_CAM_POSITION = new THREE.Vector3(-35, 35, -50)
 const SUN_LOOK_AT = new THREE.Vector3(0, 0, 0)
 // Zoom to sun: close enough to see it clearly
 const SUN_ZOOM_POSITION = new THREE.Vector3(0, 4, 18)
@@ -51,9 +51,11 @@ export function CameraController() {
     isTrackingBody.current = false
 
     if (!selectedBody) {
-      // Return to default overview
+      // Return to default overview; clear hover state so we look at sun, not old hover target
       targetCamPos.current.copy(SUN_CAM_POSITION)
       targetLookAt.current.copy(SUN_LOOK_AT)
+      hoverZoomBack.current = false
+      prevHoveredBody.current = null
       return
     }
 
@@ -204,7 +206,12 @@ export function CameraController() {
         perspCam.fov = THREE.MathUtils.lerp(perspCam.fov, DEFAULT_FOV, fovLerp)
         perspCam.updateProjectionMatrix()
 
-        if (hoverZoomBack.current) {
+        if (!selectedBody) {
+          // No selection (e.g. user clicked back): always look at the sun
+          controlsRef.current.target.lerp(SUN_LOOK_AT, lerpFactor)
+          controlsRef.current.update()
+        } else if (hoverZoomBack.current) {
+          // Hover ended while in overview: restore look-at to pre-hover target
           controlsRef.current.target.lerp(hoverStartTarget.current, lerpFactor)
           controlsRef.current.update()
           _camDiff.current.subVectors(controlsRef.current.target, hoverStartTarget.current)
@@ -212,10 +219,6 @@ export function CameraController() {
             controlsRef.current.target.copy(hoverStartTarget.current)
             hoverZoomBack.current = false
           }
-        } else if (!selectedBody) {
-          // No hover, no selection: look at the sun
-          controlsRef.current.target.lerp(SUN_LOOK_AT, lerpFactor)
-          controlsRef.current.update()
         }
       }
     }

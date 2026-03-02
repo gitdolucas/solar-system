@@ -1,5 +1,8 @@
 import type { SunData } from '@/lib/types'
 
+const SUN_COLOR = '#f5a623'
+const SUN_GLOW = 'rgba(245,166,35,0.4)'
+
 interface StatRowProps {
   label: string
   value: string
@@ -9,15 +12,53 @@ interface StatRowProps {
 function StatRow({ label, value, icon }: StatRowProps) {
   return (
     <div
-      className="flex items-start gap-3 px-4 py-3 rounded-xl"
-      style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.07)' }}
+      style={{
+        display: 'flex',
+        alignItems: 'flex-start',
+        gap: '12px',
+        padding: '12px 14px',
+        background: 'rgba(255,255,255,0.03)',
+        border: `1px solid ${SUN_COLOR}20`,
+        borderLeft: `2px solid ${SUN_COLOR}60`,
+        borderRadius: '4px',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
     >
-      <span className="text-xl flex-shrink-0 mt-0.5">{icon}</span>
-      <div>
-        <p className="text-xs uppercase tracking-wider mb-0.5" style={{ color: '#8fa3b8', fontFamily: 'var(--font-ubuntu)', fontWeight: 500 }}>
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '40%',
+          height: '100%',
+          background: `linear-gradient(90deg, ${SUN_COLOR}08 0%, transparent 100%)`,
+          pointerEvents: 'none',
+        }}
+      />
+      <span style={{ fontSize: '16px', flexShrink: 0, marginTop: '1px', lineHeight: 1 }}>{icon}</span>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <p
+          style={{
+            fontFamily: 'monospace',
+            fontSize: '9px',
+            color: `${SUN_COLOR}80`,
+            letterSpacing: '0.18em',
+            textTransform: 'uppercase',
+            marginBottom: '3px',
+          }}
+        >
           {label}
         </p>
-        <p className="text-base font-medium text-white" style={{ fontFamily: 'var(--font-ubuntu)' }}>
+        <p
+          style={{
+            fontFamily: 'var(--font-ubuntu)',
+            fontSize: '15px',
+            fontWeight: 500,
+            color: '#eaf2ff',
+            margin: 0,
+          }}
+        >
           {value}
         </p>
       </div>
@@ -31,56 +72,180 @@ interface SunCardProps {
 
 export function SunCard({ sun }: SunCardProps) {
   return (
-    <div className="flex flex-col gap-5">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+
+      {/* Header */}
       <div>
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-4 h-4 rounded-full flex-shrink-0" style={{ background: sun.cor }} />
-          <p className="text-sm font-medium uppercase tracking-wider" style={{ color: '#8fa3b8', fontFamily: 'var(--font-ubuntu)' }}>
-            {sun.apelido}
-          </p>
+        {/* Section tag */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
+          <div style={{ width: '16px', height: '1px', background: `${SUN_COLOR}60` }} />
+          <span
+            style={{
+              fontFamily: 'monospace',
+              fontSize: '10px',
+              color: `${SUN_COLOR}80`,
+              letterSpacing: '0.18em',
+              textTransform: 'uppercase',
+            }}
+          >
+            ESTRELA CENTRAL
+          </span>
+          <div style={{ flex: 1, height: '1px', background: `${SUN_COLOR}20` }} />
+          {/* Flare dots */}
+          <div style={{ display: 'flex', gap: '3px' }}>
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                style={{
+                  width: '4px',
+                  height: '4px',
+                  borderRadius: '50%',
+                  background: i === 0 ? SUN_COLOR : `${SUN_COLOR}40`,
+                  boxShadow: i === 0 ? `0 0 6px ${SUN_COLOR}` : 'none',
+                  animation: i === 0 ? 'sun-pulse 3s ease-in-out infinite' : 'none',
+                }}
+              />
+            ))}
+          </div>
         </div>
+
+        <p
+          style={{
+            fontFamily: 'monospace',
+            fontSize: '11px',
+            color: `${SUN_COLOR}70`,
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase',
+            marginBottom: '6px',
+          }}
+        >
+          {sun.apelido}
+        </p>
+
         <h1
-          className="text-4xl leading-tight"
-          style={{ fontFamily: 'var(--font-pacifico)', color: sun.cor }}
+          style={{
+            fontFamily: 'var(--font-pacifico)',
+            fontSize: '42px',
+            lineHeight: 1,
+            color: SUN_COLOR,
+            textShadow: `0 0 40px ${SUN_GLOW}, 0 0 80px rgba(245,166,35,0.15)`,
+            marginBottom: '0',
+          }}
         >
           {sun.nome}
         </h1>
+
+        <div
+          style={{
+            marginTop: '10px',
+            height: '1px',
+            background: `linear-gradient(90deg, ${SUN_COLOR}60 0%, ${SUN_COLOR}20 40%, transparent 100%)`,
+          }}
+        />
       </div>
 
-      <div className="flex flex-col gap-2">
+      {/* Stats */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+          <span
+            style={{
+              fontFamily: 'monospace',
+              fontSize: '9px',
+              color: 'rgba(100,180,255,0.4)',
+              letterSpacing: '0.18em',
+              textTransform: 'uppercase',
+            }}
+          >
+            DADOS ESTELARES
+          </span>
+          <div style={{ flex: 1, height: '1px', background: 'rgba(100,180,255,0.1)' }} />
+        </div>
+
         <StatRow icon="📏" label="Diâmetro" value={sun.diametro} />
         <StatRow icon="⚖️" label="Massa" value={sun.massa} />
         <StatRow icon="🌡️" label="Temperatura" value={sun.temperatura} />
         <StatRow icon="🕰️" label="Idade" value={sun.idade} />
       </div>
 
+      {/* Curiosidades */}
       <div>
-        <h2
-          className="text-base uppercase tracking-wider mb-3"
-          style={{ color: '#8fa3b8', fontFamily: 'var(--font-ubuntu)', fontWeight: 500 }}
-        >
-          Curiosidades
-        </h2>
-        <div className="flex flex-col gap-2">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+          <span
+            style={{
+              fontFamily: 'monospace',
+              fontSize: '9px',
+              color: 'rgba(100,180,255,0.4)',
+              letterSpacing: '0.18em',
+              textTransform: 'uppercase',
+            }}
+          >
+            CURIOSIDADES
+          </span>
+          <div style={{ flex: 1, height: '1px', background: 'rgba(100,180,255,0.1)' }} />
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
           {sun.curiosidades.map((c, i) => (
             <div
               key={i}
-              className="flex gap-3 px-4 py-3 rounded-xl"
-              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}
+              style={{
+                display: 'flex',
+                gap: '12px',
+                padding: '12px 14px',
+                background: 'rgba(255,255,255,0.025)',
+                border: '1px solid rgba(255,255,255,0.06)',
+                borderRadius: '4px',
+              }}
             >
-              <span
-                className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold mt-0.5"
-                style={{ background: sun.cor + '33', color: sun.cor, fontFamily: 'var(--font-ubuntu)' }}
+              <div
+                style={{
+                  flexShrink: 0,
+                  width: '22px',
+                  height: '22px',
+                  borderRadius: '3px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  background: `${SUN_COLOR}20`,
+                  border: `1px solid ${SUN_COLOR}40`,
+                  marginTop: '1px',
+                }}
               >
-                {i + 1}
-              </span>
-              <p className="text-base leading-relaxed text-white" style={{ fontFamily: 'var(--font-ubuntu)' }}>
+                <span
+                  style={{
+                    fontFamily: 'monospace',
+                    fontSize: '10px',
+                    fontWeight: 700,
+                    color: SUN_COLOR,
+                  }}
+                >
+                  {i + 1}
+                </span>
+              </div>
+
+              <p
+                style={{
+                  fontFamily: 'var(--font-ubuntu)',
+                  fontSize: '13px',
+                  lineHeight: 1.65,
+                  color: 'rgba(210,230,255,0.8)',
+                  margin: 0,
+                  flex: 1,
+                }}
+              >
                 {c.texto}
               </p>
             </div>
           ))}
         </div>
       </div>
+
+      <style>{`
+        @keyframes sun-pulse {
+          0%, 100% { opacity: 1; box-shadow: 0 0 6px ${SUN_COLOR}; }
+          50% { opacity: 0.5; box-shadow: 0 0 12px ${SUN_COLOR}; }
+        }
+      `}</style>
     </div>
   )
 }

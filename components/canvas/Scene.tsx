@@ -92,7 +92,7 @@ export function Scene() {
           toneMapping: THREE.ACESFilmicToneMapping,
           toneMappingExposure: 1.0,
         }}
-        camera={{ position: [0, 35, 100], fov: 60, near: 0.1, far: 1000 }}
+        camera={{ position: [-35, 35, -50], fov: 60, near: 0.1, far: 1000 }}
         style={{ width: '100%', height: '100%' }}
         onPointerMissed={() => {
           // Reset cursor if clicking empty space
