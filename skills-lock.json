@@ -5,6 +5,11 @@
       "source": "anthropics/skills",
       "sourceType": "github",
       "computedHash": "063a0e6448123cd359ad0044cc46b0e490cc7964d45ef4bb9fd842bd2ffbca67"
+    },
+    "threejs-animation": {
+      "source": "cloudai-x/threejs-skills",
+      "sourceType": "github",
+      "computedHash": "8c50b1493812bd88f3ed0637c0c3c5d846afdb322157b67b2ffba4ce8e552835"
     }
   }
 }

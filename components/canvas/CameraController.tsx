@@ -41,22 +41,22 @@ export function CameraController() {
 
   // Hover: store start target so we can restore look-at when hover ends
   const hoverStartTarget = useRef(new THREE.Vector3())
-  const prevHoveredBody = useRef<typeof hoveredBody>(null)
+  const prevHoveredId = useRef<string | null>(null)
   const hoverZoomBack = useRef(false)
 
-  const selectedBody = useSolarStore((s) => s.selectedBody)
-  const hoveredBody = useSolarStore((s) => s.hoveredBody)
+  // React hook only for useEffect dependency — useFrame reads getState() directly
+  const selectedBodySnapshot = useSolarStore((s) => s.selectedBody)
 
   useEffect(() => {
+    const selectedBody = useSolarStore.getState().selectedBody
     isAnimating.current = true
     isTrackingBody.current = false
 
     if (!selectedBody) {
-      // Return to default overview; clear hover state so we look at sun, not old hover target
       targetCamPos.current.copy(SUN_CAM_POSITION)
       targetLookAt.current.copy(SUN_LOOK_AT)
       hoverZoomBack.current = false
-      prevHoveredBody.current = null
+      prevHoveredId.current = null
       return
     }
 
@@ -85,9 +85,12 @@ export function CameraController() {
       targetCamPos.current.set(baseX + moon.orbitRadius, viewDistance * 0.4, viewDistance)
       targetLookAt.current.set(baseX + moon.orbitRadius, 0, 0)
     }
-  }, [selectedBody])
+  }, [selectedBodySnapshot])
 
   useFrame((_, delta) => {
+    // Always read fresh state — avoids stale closure bugs when selection changes rapidly
+    const { selectedBody, hoveredBody } = useSolarStore.getState()
+
     cameraRef.current = camera as THREE.PerspectiveCamera
     const lerpFactor = 1 - Math.exp(-4 * delta)
     const cam = cameraRef.current
@@ -173,11 +176,11 @@ export function CameraController() {
           hoveredBody?.type === 'moon' && selectedBody.type === 'planet'
 
         if (hoveringMoonOfSelectedPlanet) {
-          if (!prevHoveredBody.current) {
+          if (!prevHoveredId.current) {
             hoverStartTarget.current.copy(controlsRef.current.target)
             hoverZoomBack.current = false
           }
-          prevHoveredBody.current = hoveredBody
+          prevHoveredId.current = hoveredBody!.id
 
           const moonRef = refsMap.get(hoveredBody!.id)
           if (moonRef?.current) {
@@ -186,8 +189,8 @@ export function CameraController() {
           }
           cam.fov = THREE.MathUtils.lerp(cam.fov, HOVER_FOV, fovLerp)
         } else {
-          if (prevHoveredBody.current) hoverZoomBack.current = true
-          prevHoveredBody.current = null
+          if (prevHoveredId.current) hoverZoomBack.current = true
+          prevHoveredId.current = null
 
           // Restore look-at to the tracked planet (already in _prevBodyPos)
           controlsRef.current.target.copy(_prevBodyPos.current)
@@ -205,11 +208,11 @@ export function CameraController() {
     if (!isAnimating.current && !isTrackingBody.current && controlsRef.current) {
       if (hoveredBody) {
         // Entering hover: store current look-at so we can restore when hover ends
-        if (!prevHoveredBody.current) {
+        if (!prevHoveredId.current) {
           hoverStartTarget.current.copy(controlsRef.current.target)
           hoverZoomBack.current = false
         }
-        prevHoveredBody.current = hoveredBody
+        prevHoveredId.current = hoveredBody.id
 
         const target = controlsRef.current.target
         if (hoveredBody.type === 'sun') {
@@ -228,8 +231,8 @@ export function CameraController() {
         cam.updateProjectionMatrix()
         controlsRef.current.update()
       } else {
-        if (prevHoveredBody.current) hoverZoomBack.current = true
-        prevHoveredBody.current = null
+        if (prevHoveredId.current) hoverZoomBack.current = true
+        prevHoveredId.current = null
 
         // Restore FOV and optionally restore look-at target
         cam.fov = THREE.MathUtils.lerp(cam.fov, DEFAULT_FOV, fovLerp)

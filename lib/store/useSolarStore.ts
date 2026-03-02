@@ -11,6 +11,8 @@ export const useSolarStore = create<SolarStoreState>((set, get) => ({
     set((state) => ({
       previousBody: state.selectedBody,
       selectedBody: { type, id },
+      hoveredBody: null,
+      tooltipBody: null,
     })),
 
   setHoveredBody: (body: SelectedBody | null) => set({ hoveredBody: body }),
@@ -20,9 +22,9 @@ export const useSolarStore = create<SolarStoreState>((set, get) => ({
   clearSelection: () => {
     const { previousBody } = get()
     if (previousBody) {
-      set({ selectedBody: previousBody, previousBody: null })
+      set({ selectedBody: previousBody, previousBody: null, hoveredBody: null, tooltipBody: null })
     } else {
-      set({ selectedBody: null, previousBody: null })
+      set({ selectedBody: null, previousBody: null, hoveredBody: null, tooltipBody: null })
     }
   },
 

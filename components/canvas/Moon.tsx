@@ -59,10 +59,13 @@ export const Moon = memo(function Moon({ data, visible }: MoonProps) {
   const setTooltipBody = useSolarStore((s) => s.setTooltipBody)
   const hoveredBody = useSolarStore((s) => s.hoveredBody)
   const tooltipBody = useSolarStore((s) => s.tooltipBody)
+  const selectedBody = useSolarStore((s) => s.selectedBody)
   const refsMap = useContext(PlanetRefsContext)
+  const isThisMoonSelected = selectedBody?.type === 'moon' && selectedBody.id === data.id
   const isHovered =
-    (tooltipBody?.type === 'moon' && tooltipBody?.id === data.id) ||
-    (hoveredBody?.type === 'moon' && hoveredBody?.id === data.id)
+    !isThisMoonSelected &&
+    ((tooltipBody?.type === 'moon' && tooltipBody?.id === data.id) ||
+     (hoveredBody?.type === 'moon' && hoveredBody?.id === data.id))
 
   useEffect(() => {
     if (meshGroupRef.current) {
@@ -85,8 +88,13 @@ export const Moon = memo(function Moon({ data, visible }: MoonProps) {
           rotation={[0, 0, data.tilt]}
           castShadow
           receiveShadow
-          onClick={(e) => { e.stopPropagation(); selectBody('moon', data.id) }}
+          onClick={(e) => {
+            if (isThisMoonSelected) return // let click pass through to planet behind
+            e.stopPropagation()
+            selectBody('moon', data.id)
+          }}
           onPointerOver={(e) => {
+            if (isThisMoonSelected) return
             e.stopPropagation()
             document.body.style.cursor = 'pointer'
             setTooltipBody({ type: 'moon', id: data.id })
