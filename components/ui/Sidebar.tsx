@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState, useCallback } from 'react'
+import { useRef, useState, useCallback, useEffect } from 'react'
 import { useSolarStore } from '@/lib/store/useSolarStore'
 import { useIsMobile } from '@/lib/hooks/useIsMobile'
 import { PLANETS } from '@/lib/data/planets'
@@ -15,8 +15,11 @@ import { BackButton } from './BackButton'
 import { SubjectAudioPlayer } from './SubjectAudioPlayer'
 import { SidebarDenseProvider } from '@/lib/context/SidebarDenseContext'
 
-const SCROLL_THRESHOLD = 60
-const SCROLL_SHOW_THRESHOLD = 20
+const SCROLL_COLLAPSE_THRESHOLD = 80   // scroll down past this to collapse
+const SCROLL_EXPAND_THRESHOLD = 24     // near top: always expand
+const SCROLL_DELTA_DOWN = 36           // min px scrolled down before collapsing (hysteresis)
+const SCROLL_DELTA_UP = 28             // min px scrolled up before expanding (hysteresis)
+const SCROLL_THROTTLE_MS = 90          // run at most every 90ms to avoid flicker
 
 export function Sidebar() {
   const selectedBody = useSolarStore((s) => s.selectedBody)
@@ -25,24 +28,68 @@ export function Sidebar() {
   const [headerCollapsed, setHeaderCollapsed] = useState(false)
   const contentRef = useRef<HTMLDivElement>(null)
   const lastScrollTop = useRef(0)
-
-  // No effect needed: we use (headerCollapsed && hasSelection) for display, so when
-  // hasSelection is false the header is always expanded.
+  const scrollTopAtStateChange = useRef(0)
+  const lastTick = useRef(0)
+  const rafId = useRef<number | null>(null)
 
   const handleContentScroll = useCallback(() => {
     if (!hasSelection) return
     const el = contentRef.current
     if (!el) return
-    const st = el.scrollTop
-    const scrollingDown = st > lastScrollTop.current
-    lastScrollTop.current = st
-    if (st <= SCROLL_SHOW_THRESHOLD) {
-      setHeaderCollapsed(false)
+    const now = Date.now()
+    if (now - lastTick.current < SCROLL_THROTTLE_MS) {
+      if (rafId.current === null) {
+        rafId.current = requestAnimationFrame(() => {
+          rafId.current = null
+          lastTick.current = Date.now()
+          runScrollLogic(el)
+        })
+      }
       return
     }
-    if (scrollingDown && st > SCROLL_THRESHOLD) setHeaderCollapsed(true)
-    else if (!scrollingDown) setHeaderCollapsed(false)
+    lastTick.current = now
+    runScrollLogic(el)
   }, [hasSelection])
+
+  useEffect(() => {
+    return () => {
+      if (rafId.current !== null) cancelAnimationFrame(rafId.current)
+    }
+  }, [])
+
+  function runScrollLogic(el: HTMLDivElement) {
+    const st = el.scrollTop
+    const prev = lastScrollTop.current
+    lastScrollTop.current = st
+
+    if (st <= SCROLL_EXPAND_THRESHOLD) {
+      setHeaderCollapsed((c) => {
+        if (c) scrollTopAtStateChange.current = st
+        return false
+      })
+      return
+    }
+
+    const atChange = scrollTopAtStateChange.current
+    setHeaderCollapsed((c) => {
+      if (c) {
+        // Currently collapsed: expand only if scrolled up enough or near top
+        const scrolledUp = atChange - st
+        if (scrolledUp >= SCROLL_DELTA_UP) {
+          scrollTopAtStateChange.current = st
+          return false
+        }
+        return true
+      } else {
+        // Expanded: collapse only if scrolled down past threshold and by enough delta
+        if (st >= SCROLL_COLLAPSE_THRESHOLD && st - atChange >= SCROLL_DELTA_DOWN) {
+          scrollTopAtStateChange.current = st
+          return true
+        }
+        return false
+      }
+    })
+  }
 
   function renderContent() {
     if (!selectedBody) return <SystemInfo />
