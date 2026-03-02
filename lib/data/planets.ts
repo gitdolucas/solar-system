@@ -104,6 +104,7 @@ export const PLANETS: PlanetData[] = [
     distanciaDaSol: '778,5 milhões de km',
     tamanhoRelativo: '11,2× a Terra',
     temperatura: '-108°C nas nuvens',
+    audio: '/audio/audio-jupiter.mp3',
     curiosidades: [
       { texto: 'A Grande Mancha Vermelha de Júpiter é uma tempestade maior que a Terra!' },
       { texto: 'Júpiter tem mais de 95 luas conhecidas.' },
@@ -127,6 +128,7 @@ export const PLANETS: PlanetData[] = [
     distanciaDaSol: '1,43 bilhão de km',
     tamanhoRelativo: '9,4× a Terra',
     temperatura: '-139°C nas nuvens',
+    audio: '/audio/audio-saturno.mp3',
     curiosidades: [
       { texto: 'Os anéis de Saturno são feitos de gelo e rocha — alguns pedaços são do tamanho de uma casa!' },
       { texto: 'Saturno é tão leve que flutuaria na água!' },
@@ -153,6 +155,7 @@ export const PLANETS: PlanetData[] = [
     distanciaDaSol: '2,87 bilhões de km',
     tamanhoRelativo: '4× a Terra',
     temperatura: '-197°C nas nuvens',
+    audio: '/audio/audio-urano.mp3',
     curiosidades: [
       { texto: 'Urano orbita o Sol deitado de lado — sua inclinação é de 98 graus!' },
       { texto: 'Urano tem anéis, assim como Saturno, mas muito mais finos e escuros.' },
@@ -181,6 +184,7 @@ export const PLANETS: PlanetData[] = [
     distanciaDaSol: '4,5 bilhões de km',
     tamanhoRelativo: '3,9× a Terra',
     temperatura: '-201°C nas nuvens',
+    audio: '/audio/audio-netuno.mp3',
     curiosidades: [
       { texto: 'Netuno tem os ventos mais rápidos do Sistema Solar: até 2.100 km/h!' },
       { texto: 'Netuno não pode ser visto a olho nu da Terra.' },
