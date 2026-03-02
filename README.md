@@ -38,7 +38,7 @@ Este projeto nasceu de uma vontade simples: mostrar ao meu filho o lugar que hab
 
 ```bash
 # Clone o repositório
-git clone <url-do-repositorio>
+git clone https://github.com/gitdolucas/solar-system.git
 cd solar-system
 
 # Instale as dependências

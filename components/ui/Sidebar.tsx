@@ -4,6 +4,7 @@ import { useSolarStore } from '@/lib/store/useSolarStore'
 import { PLANETS } from '@/lib/data/planets'
 import { MOONS } from '@/lib/data/moons'
 import { SUN } from '@/lib/data/sun'
+import { attribution } from '@/public/audio/background-music-attribution'
 import { SystemInfo } from './SystemInfo'
 import { PlanetCard } from './PlanetCard'
 import { SunCard } from './SunCard'
@@ -66,6 +67,19 @@ export function Sidebar() {
       {/* Content */}
       <div className="flex-1 overflow-y-auto px-6 py-6">
         {renderContent()}
+      </div>
+
+      {/* Music attribution */}
+      <div
+        className="px-6 py-3 shrink-0"
+        style={{ borderTop: '1px solid rgba(255, 255, 255, 0.07)' }}
+      >
+        <p
+          className="text-[10px] leading-tight opacity-60"
+          style={{ color: 'rgba(255, 255, 255, 0.5)' }}
+        >
+          {attribution.trim().replace(/\n/g, ' · ')}
+        </p>
       </div>
     </aside>
   )
