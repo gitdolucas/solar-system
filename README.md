@@ -1,5 +1,7 @@
 # 🪐 Sistema Solar Interativo
 
+![Preview do projeto](public/images/project-preview.png)
+
 > Um projeto feito de pai para filho — para ajudá-lo a entender onde vivemos neste cosmos tão grande.
 
 Este projeto nasceu de uma vontade simples: mostrar ao meu filho o lugar que habitamos no universo. Mais do que um exercício técnico, é uma janela para o espaço que podemos explorar juntos — girando planetas, descobrindo luas, e sentindo a imensidão que existe além do nosso céu.

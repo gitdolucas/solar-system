@@ -55,7 +55,7 @@ function SceneContent() {
 
   return (
     <>
-      <Stars radius={300} depth={60} count={6000} factor={4} fade saturation={0.3} />
+      <Stars radius={300} depth={40} count={6000} factor={4} fade saturation={0.7} />
 
       {/* Ambient: just enough to show dark sides, not enough to wash out shadows */}
       <ambientLight intensity={0.35} />
