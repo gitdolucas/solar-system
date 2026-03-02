@@ -1,6 +1,7 @@
 'use client'
 
-import { useMemo, Suspense } from 'react'
+import { useRef, useMemo, Suspense } from 'react'
+import { useFrame } from '@react-three/fiber'
 import { useTexture } from '@react-three/drei'
 import * as THREE from 'three'
 import { TextureErrorBoundary } from './TextureErrorBoundary'
@@ -9,10 +10,12 @@ interface RingsProps {
   innerRadius: number
   outerRadius: number
   textura: string
-  /** 0–1, for subtler/darker rings (e.g. Uranus). Default 1 */
+  /** 0–1, base opacity for subtler rings (e.g. Uranus). Default 1 */
   opacity?: number
   /** Tint color multiplied with texture (e.g. '#333' for darker). */
   tint?: string
+  /** Intro fade ref — ring opacity is multiplied by this */
+  opacityRef?: React.RefObject<number>
 }
 
 function useRingGeometry(innerRadius: number, outerRadius: number) {
@@ -33,32 +36,54 @@ function useRingGeometry(innerRadius: number, outerRadius: number) {
 
 function RingMaterial({
   textura,
-  opacity = 1,
+  baseOpacity,
   tint,
+  opacityRef,
 }: {
   textura: string
-  opacity?: number
+  baseOpacity: number
   tint?: string
+  opacityRef?: React.RefObject<number>
 }) {
   const texture = useTexture(textura)
+  const matRef = useRef<THREE.MeshBasicMaterial>(null)
+  useFrame(() => {
+    if (matRef.current) {
+      matRef.current.opacity = baseOpacity * (opacityRef?.current ?? 1)
+    }
+  })
   return (
     <meshBasicMaterial
+      ref={matRef}
       map={texture}
       color={tint ?? '#ffffff'}
       transparent
-      opacity={opacity}
+      opacity={0}
       side={THREE.DoubleSide}
       depthWrite={false}
     />
   )
 }
 
-function RingFallbackMaterial() {
+function RingFallbackMaterial({
+  baseOpacity,
+  opacityRef,
+}: {
+  baseOpacity: number
+  opacityRef?: React.RefObject<number>
+}) {
+  const matRef = useRef<THREE.MeshBasicMaterial>(null)
+  useFrame(() => {
+    if (matRef.current) {
+      matRef.current.opacity = baseOpacity * (opacityRef?.current ?? 1)
+    }
+  })
   return (
     <meshBasicMaterial
+      ref={matRef}
       color="#d4c080"
       transparent
-      opacity={0.7}
+      opacity={0}
       side={THREE.DoubleSide}
       depthWrite={false}
     />
@@ -71,14 +96,15 @@ export function Rings({
   textura,
   opacity = 1,
   tint,
+  opacityRef,
 }: RingsProps) {
   const geometry = useRingGeometry(innerRadius, outerRadius)
 
   return (
     <mesh geometry={geometry} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-      <TextureErrorBoundary fallback={<RingFallbackMaterial />}>
-        <Suspense fallback={<RingFallbackMaterial />}>
-          <RingMaterial textura={textura} opacity={opacity} tint={tint} />
+      <TextureErrorBoundary fallback={<RingFallbackMaterial baseOpacity={opacity} opacityRef={opacityRef} />}>
+        <Suspense fallback={<RingFallbackMaterial baseOpacity={opacity} opacityRef={opacityRef} />}>
+          <RingMaterial textura={textura} baseOpacity={opacity} tint={tint} opacityRef={opacityRef} />
         </Suspense>
       </TextureErrorBoundary>
     </mesh>

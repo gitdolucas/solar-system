@@ -14,6 +14,7 @@ export const fragmentShader = /* glsl */ `
   uniform sampler2D uMap;
   uniform float uEmissiveIntensity;
   uniform vec3 uEmissiveTint;
+  uniform float uOpacity;
 
   varying vec2 vUv;
 
@@ -32,6 +33,6 @@ export const fragmentShader = /* glsl */ `
     tex = mix(tex, texLeft, blendRight);   // near u=1: blend in the left edge of texture
 
     vec3 emissive = tex.rgb * uEmissiveTint * uEmissiveIntensity;
-    gl_FragColor = vec4(emissive, 1.0);
+    gl_FragColor = vec4(emissive, uOpacity);
   }
 `

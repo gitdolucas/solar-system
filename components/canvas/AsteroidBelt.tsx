@@ -5,6 +5,7 @@ import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { vertexShader, fragmentShader } from '@/lib/shaders/asteroidBelt'
 import { useSolarStore } from '@/lib/store/useSolarStore'
+import { useIntroFade } from '@/lib/hooks/useIntroFade'
 
 /** Seeded RNG (mulberry32) for deterministic geometry - keeps render pure */
 function createSeededRandom(seed: number) {
@@ -30,6 +31,8 @@ export interface AsteroidBeltProps {
   sizeScale?: number
   /** Target inclination in radians for Lúdico mode. */
   ludicInclination?: number
+  /** Intro phase index for fade-in animation */
+  introPhase: number
 }
 
 export function AsteroidBelt({
@@ -43,7 +46,9 @@ export function AsteroidBelt({
   orbitSpeed = 0.2,
   sizeScale = 1,
   ludicInclination = 0,
+  introPhase,
 }: AsteroidBeltProps) {
+  const opacityRef = useIntroFade(introPhase)
   const pointsRef = useRef<THREE.Points>(null)
   const orbitGroupRef = useRef<THREE.Group>(null)
 
@@ -80,6 +85,7 @@ export function AsteroidBelt({
       uScale: { value: 90 },
       uMaxSize: { value: 15.0 * sizeScale },
       uColor: { value: new THREE.Color(color) },
+      uOpacity: { value: 0 },
     }),
     [color, sizeScale]
   )
@@ -95,6 +101,7 @@ export function AsteroidBelt({
     }
     const mat = pointsRef.current?.material as THREE.ShaderMaterial | undefined
     if (mat?.uniforms?.uTime) mat.uniforms.uTime.value += dt
+    if (mat?.uniforms?.uOpacity) mat.uniforms.uOpacity.value = opacityRef.current
   })
 
   const material = useMemo(

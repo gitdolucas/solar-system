@@ -12,6 +12,7 @@ export const vertexShader = /* glsl */ `
 
 export const fragmentShader = /* glsl */ `
   uniform float uTime;
+  uniform float uOpacity;
 
   varying vec2 vUv;
 
@@ -64,7 +65,7 @@ export const fragmentShader = /* glsl */ `
     vec3 color = plasmaColor * bright * 0.9;
 
     // Slight falloff toward the back (optional: use normal vs view)
-    float alpha = min(0.85, bright * 0.95);
+    float alpha = min(0.85, bright * 0.95) * uOpacity;
     gl_FragColor = vec4(color, alpha);
   }
 `

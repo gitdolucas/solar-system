@@ -11,22 +11,32 @@ import { Rings } from './Rings'
 import { OrbitLine } from './OrbitLine'
 import { PlanetRefsContext } from './Scene'
 import { TextureErrorBoundary } from './TextureErrorBoundary'
+import { useIntroFade } from '@/lib/hooks/useIntroFade'
 
 interface PlanetProps {
   data: PlanetData
   moons: MoonData[]
+  introPhase: number
 }
 
-function PlanetMaterial({ textura }: { textura: string }) {
+function PlanetMaterial({ textura, opacityRef }: { textura: string; opacityRef: React.RefObject<number> }) {
   const texture = useTexture(textura)
-  return <meshStandardMaterial map={texture} roughness={0.85} metalness={0} />
+  const matRef = useRef<THREE.MeshStandardMaterial>(null)
+  useFrame(() => {
+    if (matRef.current) matRef.current.opacity = opacityRef.current
+  })
+  return <meshStandardMaterial ref={matRef} map={texture} roughness={0.85} metalness={0} transparent opacity={0} />
 }
 
-function PlanetFallbackMaterial({ cor }: { cor: string }) {
-  return <meshStandardMaterial color={cor} roughness={0.85} metalness={0} />
+function PlanetFallbackMaterial({ cor, opacityRef }: { cor: string; opacityRef: React.RefObject<number> }) {
+  const matRef = useRef<THREE.MeshStandardMaterial>(null)
+  useFrame(() => {
+    if (matRef.current) matRef.current.opacity = opacityRef.current
+  })
+  return <meshStandardMaterial ref={matRef} color={cor} roughness={0.85} metalness={0} transparent opacity={0} />
 }
 
-export const Planet = memo(function Planet({ data, moons }: PlanetProps) {
+export const Planet = memo(function Planet({ data, moons, introPhase }: PlanetProps) {
   const orbitGroupRef = useRef<THREE.Group>(null)
   const selfGroupRef = useRef<THREE.Group>(null)
 
@@ -35,6 +45,8 @@ export const Planet = memo(function Planet({ data, moons }: PlanetProps) {
   const setTooltipBody = useSolarStore((s) => s.setTooltipBody)
   const hoveredBody = useSolarStore((s) => s.hoveredBody)
   const tooltipBody = useSolarStore((s) => s.tooltipBody)
+
+  const opacityRef = useIntroFade(introPhase)
 
   const isHovered =
     (tooltipBody?.type === 'planet' && tooltipBody?.id === data.id) ||
@@ -91,9 +103,9 @@ export const Planet = memo(function Planet({ data, moons }: PlanetProps) {
             }}
           >
             <sphereGeometry args={[data.size, 64, 64]} />
-            <TextureErrorBoundary fallback={<PlanetFallbackMaterial cor={data.cor} />}>
-              <Suspense fallback={<PlanetFallbackMaterial cor={data.cor} />}>
-                <PlanetMaterial textura={data.textura} />
+            <TextureErrorBoundary fallback={<PlanetFallbackMaterial cor={data.cor} opacityRef={opacityRef} />}>
+              <Suspense fallback={<PlanetFallbackMaterial cor={data.cor} opacityRef={opacityRef} />}>
+                <PlanetMaterial textura={data.textura} opacityRef={opacityRef} />
               </Suspense>
             </TextureErrorBoundary>
             {isHovered && (
@@ -109,6 +121,7 @@ export const Planet = memo(function Planet({ data, moons }: PlanetProps) {
                 textura={data.ringTexture}
                 opacity={data.ringOpacity}
                 tint={data.ringTint}
+                opacityRef={opacityRef}
               />
             </group>
           )}

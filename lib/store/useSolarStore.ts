@@ -28,7 +28,7 @@ export const useSolarStore = create<SolarStoreState>((set, get) => ({
     }
   },
 
-  simulationSpeed: 1,
+  simulationSpeed: 0.25,
   setSimulationSpeed: (speed: number) => set({ simulationSpeed: speed }),
 
   orbitMode: 'real' as OrbitMode,
@@ -38,4 +38,7 @@ export const useSolarStore = create<SolarStoreState>((set, get) => ({
   backgroundMusicVolume: 0.1,
   setBackgroundMusicPlaying: (playing: boolean) => set({ backgroundMusicPlaying: playing }),
   setBackgroundMusicVolume: (volume: number) => set({ backgroundMusicVolume: volume }),
+
+  introComplete: false,
+  setIntroComplete: () => set({ introComplete: true }),
 }))

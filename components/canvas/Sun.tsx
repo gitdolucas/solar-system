@@ -8,10 +8,11 @@ import { vertexShader, fragmentShader } from '@/lib/shaders/sun'
 import { vertexShader as surfaceVertex, fragmentShader as surfaceFragment } from '@/lib/shaders/sunSurface'
 import { TextureErrorBoundary } from './TextureErrorBoundary'
 import { useSolarStore } from '@/lib/store/useSolarStore'
+import { useIntroFade } from '@/lib/hooks/useIntroFade'
 
 const uTimePlasma = { value: 0 }
 
-function SunMaterial() {
+function SunMaterial({ opacityRef }: { opacityRef: React.RefObject<number> }) {
   const texture = useTexture('/textures/sun.jpg')
   const wrappedTexture = useMemo(() => {
     const t = texture.clone()
@@ -27,22 +28,38 @@ function SunMaterial() {
           uMap: { value: wrappedTexture },
           uEmissiveIntensity: { value: 1.5 },
           uEmissiveTint: { value: new THREE.Vector3(1, 0.6, 0.1) },
+          uOpacity: { value: 0 },
         },
+        transparent: true,
         side: THREE.FrontSide,
       }),
     [wrappedTexture]
   )
+
+  useFrame(() => {
+    if (material.uniforms.uOpacity) {
+      material.uniforms.uOpacity.value = opacityRef.current
+    }
+  })
+
   return <primitive object={material} attach="material" />
 }
 
-function SunFallbackMaterial() {
+function SunFallbackMaterial({ opacityRef }: { opacityRef: React.RefObject<number> }) {
+  const matRef = useRef<THREE.MeshStandardMaterial>(null)
+  useFrame(() => {
+    if (matRef.current) matRef.current.opacity = opacityRef.current
+  })
   return (
     <meshStandardMaterial
+      ref={matRef}
       color="#f5a623"
       emissive={new THREE.Color(1, 0.5, 0.05)}
       emissiveIntensity={1.5}
       roughness={1}
       metalness={0}
+      transparent
+      opacity={0}
     />
   )
 }
@@ -50,6 +67,7 @@ function SunFallbackMaterial() {
 export function Sun() {
   const groupRef = useRef<THREE.Group>(null)
   const meshRef = useRef<THREE.Mesh>(null)
+  const glowMatRef = useRef<THREE.MeshBasicMaterial>(null)
   const selectBody = useSolarStore((s) => s.selectBody)
   const setTooltipBody = useSolarStore((s) => s.setTooltipBody)
   const hoveredBody = useSolarStore((s) => s.hoveredBody)
@@ -58,12 +76,14 @@ export function Sun() {
     (tooltipBody?.type === 'sun' && tooltipBody?.id === 'sun') ||
     (hoveredBody?.type === 'sun' && hoveredBody?.id === 'sun')
 
+  const opacityRef = useIntroFade(0)
+
   const plasmaMaterial = useMemo(
     () =>
       new THREE.ShaderMaterial({
         vertexShader,
         fragmentShader,
-        uniforms: { uTime: uTimePlasma },
+        uniforms: { uTime: uTimePlasma, uOpacity: { value: 0 } },
         transparent: true,
         depthWrite: false,
         side: THREE.FrontSide,
@@ -77,6 +97,14 @@ export function Sun() {
       groupRef.current.rotation.y += delta * 0.05
     }
     uTimePlasma.value += delta
+
+    const opacity = opacityRef.current
+    if (plasmaMaterial.uniforms.uOpacity) {
+      plasmaMaterial.uniforms.uOpacity.value = opacity
+    }
+    if (glowMatRef.current) {
+      glowMatRef.current.opacity = 0.12 * opacity
+    }
   })
 
   return (
@@ -108,9 +136,9 @@ export function Sun() {
         }}
       >
         <sphereGeometry args={[5, 64, 64]} />
-        <TextureErrorBoundary fallback={<SunFallbackMaterial />}>
-          <Suspense fallback={<SunFallbackMaterial />}>
-            <SunMaterial />
+        <TextureErrorBoundary fallback={<SunFallbackMaterial opacityRef={opacityRef} />}>
+          <Suspense fallback={<SunFallbackMaterial opacityRef={opacityRef} />}>
+            <SunMaterial opacityRef={opacityRef} />
           </Suspense>
         </TextureErrorBoundary>
         {isHovered && (
@@ -128,9 +156,10 @@ export function Sun() {
       <mesh>
         <sphereGeometry args={[6.5, 32, 32]} />
         <meshBasicMaterial
+          ref={glowMatRef}
           color={new THREE.Color(1, 0.6, 0.1)}
           transparent
-          opacity={0.12}
+          opacity={0}
           side={THREE.BackSide}
           depthWrite={false}
           blending={THREE.AdditiveBlending}

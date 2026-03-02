@@ -92,4 +92,6 @@ export interface SolarStoreState {
   backgroundMusicVolume: number
   setBackgroundMusicPlaying: (playing: boolean) => void
   setBackgroundMusicVolume: (volume: number) => void
+  introComplete: boolean
+  setIntroComplete: () => void
 }

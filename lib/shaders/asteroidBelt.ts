@@ -22,11 +22,12 @@ export const vertexShader = /* glsl */ `
 
 export const fragmentShader = /* glsl */ `
   uniform vec3 uColor;
+  uniform float uOpacity;
 
   void main() {
     float d = length(gl_PointCoord - 0.5);
     float a = 1.0 - smoothstep(0.0, 0.5, d);
     vec3 color = uColor * 1.15;
-    gl_FragColor = vec4(color, 0.9 * a);
+    gl_FragColor = vec4(color, 0.9 * a * uOpacity);
   }
 `

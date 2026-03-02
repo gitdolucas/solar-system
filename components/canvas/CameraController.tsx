@@ -10,7 +10,7 @@ import { PLANETS } from '@/lib/data/planets'
 import { MOONS } from '@/lib/data/moons'
 import { PlanetRefsContext } from './Scene'
 
-const SUN_CAM_POSITION = new THREE.Vector3(-35, 35, -50)
+const SUN_CAM_POSITION = new THREE.Vector3(-50, 35, -50)
 const SUN_LOOK_AT = new THREE.Vector3(0, 0, 0)
 // Zoom to sun: close enough to see it clearly
 const SUN_ZOOM_POSITION = new THREE.Vector3(0, 4, 18)
