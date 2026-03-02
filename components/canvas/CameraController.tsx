@@ -179,7 +179,7 @@ export function CameraController() {
 
           let radius: number
           let distanceMultiplier: number
-          let centerPos = SUN_POSITION
+          const centerPos = SUN_POSITION
           if (selectedBody.type === 'planet') {
             const planet = PLANETS.find((p) => p.id === selectedBody.id)
             radius = planet ? planet.size : 2.4
