@@ -11,7 +11,8 @@ import { MOONS } from '@/lib/data/moons'
 import { PlanetRefsContext } from './Scene'
 
 const SUN_CAM_POSITION = new THREE.Vector3(-50, 35, -50)
-const SUN_LOOK_AT = new THREE.Vector3(0, 0, 0)
+const SUN_POSITION = new THREE.Vector3(0, 0, 0)
+const SUN_LOOK_AT = SUN_POSITION
 // Zoom to sun: close enough to see it clearly
 const SUN_ZOOM_POSITION = new THREE.Vector3(0, 4, 18)
 const ARRIVAL_THRESHOLD = 0.5
@@ -20,6 +21,57 @@ const DEFAULT_FOV = 60
 const HOVER_FOV = 18
 const HOVER_FOV_LERP = 4
 const HOVER_ZOOM_BACK_THRESHOLD = 0.5
+
+const PLANET_DISTANCE_MULTIPLIER = 4.5
+const MOON_DISTANCE_MULTIPLIER = 7
+const WORLD_UP = new THREE.Vector3(0, 1, 0)
+const CAMERA_OFFSET_UP_FACTOR = 0.12
+const CAMERA_OFFSET_LEFT_FACTOR = 0.12
+
+// For moons, choose what we want centered in the frame.
+// 'sun' → moon foreground with Sun directly behind (matches planet framing)
+// 'planet' → moon foreground, parent planet midground, Sun in the far background
+const MOON_CENTER_MODE: 'sun' | 'planet' = 'sun'
+
+// Reusable temp vector for direction calculations
+const _viewDir = new THREE.Vector3()
+const _sideDir = new THREE.Vector3()
+
+function computeBodyView(
+  bodyWorldPos: THREE.Vector3,
+  centerWorldPos: THREE.Vector3,
+  radius: number,
+  distanceMultiplier: number,
+  outCamPos: THREE.Vector3,
+  outLookAt: THREE.Vector3
+) {
+  _viewDir.subVectors(bodyWorldPos, centerWorldPos)
+  if (_viewDir.lengthSq() === 0) {
+    _viewDir.set(0, 0, 1)
+  } else {
+    _viewDir.normalize()
+  }
+
+  const viewDistance = radius * distanceMultiplier
+
+  // Build a small \"top-left\" offset in world space relative to the view direction:
+  // - up: world +Y
+  // - left: perpendicular to viewDir and up
+  _sideDir.crossVectors(_viewDir, WORLD_UP)
+  if (_sideDir.lengthSq() === 0) {
+    _sideDir.set(1, 0, 0)
+  } else {
+    _sideDir.normalize()
+  }
+
+  outCamPos
+    .copy(bodyWorldPos)
+    .addScaledVector(_viewDir, viewDistance)
+    .addScaledVector(WORLD_UP, viewDistance * CAMERA_OFFSET_UP_FACTOR)
+    .addScaledVector(_sideDir, -viewDistance * CAMERA_OFFSET_LEFT_FACTOR)
+
+  outLookAt.copy(centerWorldPos)
+}
 
 export function CameraController() {
   const { camera } = useThree()
@@ -69,21 +121,38 @@ export function CameraController() {
     if (selectedBody.type === 'planet') {
       const planet = PLANETS.find((p) => p.id === selectedBody.id)
       if (!planet) return
-      const viewDistance = planet.size * 5
-      targetCamPos.current.set(planet.orbitRadius, viewDistance * 0.4, viewDistance)
-      targetLookAt.current.set(planet.orbitRadius, 0, 0)
+      const approxPlanetPos = new THREE.Vector3(planet.orbitRadius, 0, 0)
+      computeBodyView(
+        approxPlanetPos,
+        SUN_POSITION,
+        planet.size,
+        PLANET_DISTANCE_MULTIPLIER,
+        targetCamPos.current,
+        targetLookAt.current
+      )
       return
     }
 
     if (selectedBody.type === 'moon') {
       const moon = MOONS.find((m) => m.id === selectedBody.id)
       if (!moon) return
-      const viewDistance = moon.size * 8
-      // Initial estimate — overwritten next frame by live world position
       const parentPlanet = PLANETS.find((p) => p.id === moon.parentId)
       const baseX = parentPlanet ? parentPlanet.orbitRadius : 0
-      targetCamPos.current.set(baseX + moon.orbitRadius, viewDistance * 0.4, viewDistance)
-      targetLookAt.current.set(baseX + moon.orbitRadius, 0, 0)
+      const approxMoonPos = new THREE.Vector3(baseX + moon.orbitRadius, 0, 0)
+
+      const centerForMoon =
+        MOON_CENTER_MODE === 'planet' && parentPlanet
+          ? new THREE.Vector3(parentPlanet.orbitRadius, 0, 0)
+          : SUN_POSITION
+
+      computeBodyView(
+        approxMoonPos,
+        centerForMoon,
+        moon.size,
+        MOON_DISTANCE_MULTIPLIER,
+        targetCamPos.current,
+        targetLookAt.current
+      )
     }
   }, [selectedBodySnapshot])
 
@@ -108,20 +177,38 @@ export function CameraController() {
         if (bodyRef?.current) {
           bodyRef.current.getWorldPosition(_worldPos.current)
 
-          let viewDistance: number
+          let radius: number
+          let distanceMultiplier: number
+          let centerPos = SUN_POSITION
           if (selectedBody.type === 'planet') {
             const planet = PLANETS.find((p) => p.id === selectedBody.id)
-            viewDistance = planet ? planet.size * 5 : 12
+            radius = planet ? planet.size : 2.4
+            distanceMultiplier = PLANET_DISTANCE_MULTIPLIER
           } else {
             const moon = MOONS.find((m) => m.id === selectedBody.id)
-            viewDistance = moon ? moon.size * 8 : 3
+            radius = moon ? moon.size : 0.4
+            distanceMultiplier = MOON_DISTANCE_MULTIPLIER
+
+            if (MOON_CENTER_MODE === 'planet' && moon) {
+              const parentPlanet = PLANETS.find((p) => p.id === moon.parentId)
+              if (parentPlanet) {
+                const parentRef = refsMap.get(parentPlanet.id)
+                if (parentRef?.current) {
+                  parentRef.current.getWorldPosition(centerPos)
+                } else {
+                  centerPos.set(parentPlanet.orbitRadius, 0, 0)
+                }
+              }
+            }
           }
 
-          targetLookAt.current.copy(_worldPos.current)
-          targetCamPos.current.set(
-            _worldPos.current.x,
-            _worldPos.current.y + viewDistance * 0.4,
-            _worldPos.current.z + viewDistance
+          computeBodyView(
+            _worldPos.current,
+            centerPos,
+            radius,
+            distanceMultiplier,
+            targetCamPos.current,
+            targetLookAt.current
           )
         }
       }
@@ -145,8 +232,15 @@ export function CameraController() {
 
         // Start tracking if arrived at a moving body (planet or moon)
         if (selectedBody && selectedBody.type !== 'sun') {
-          camOffset.current.subVectors(cam.position, targetLookAt.current)
-          _prevBodyPos.current.copy(targetLookAt.current)
+          const bodyRef = refsMap.get(selectedBody.id)
+          if (bodyRef?.current) {
+            bodyRef.current.getWorldPosition(_worldPos.current)
+            camOffset.current.subVectors(cam.position, _worldPos.current)
+            _prevBodyPos.current.copy(_worldPos.current)
+          } else {
+            camOffset.current.subVectors(cam.position, targetLookAt.current)
+            _prevBodyPos.current.copy(targetLookAt.current)
+          }
           isTrackingBody.current = true
         }
       }
