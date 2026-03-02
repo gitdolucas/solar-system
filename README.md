@@ -106,7 +106,7 @@ moon.jpg
 
 O cosmos é imenso — mas também é nosso. Cada estrela que você vê à noite é um sol distante. E nós, aqui na Terra, somos parte disso tudo. Espero que esse projeto te ajude a sentir essa grandeza, e que desperte em você a mesma curiosidade que me move.
 
-*Com amor, seu pai.*
+*Com amor, Papai.*
 
 ---
 
