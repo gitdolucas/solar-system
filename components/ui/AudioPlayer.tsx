@@ -9,11 +9,13 @@ interface AudioPlayerProps {
 
 export function AudioPlayer({ src, title = 'Trilha Sonora' }: AudioPlayerProps) {
   const audioRef = useRef<HTMLAudioElement>(null)
+  const progressRef = useRef<HTMLDivElement>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [progress, setProgress] = useState(0)
   const [duration, setDuration] = useState(0)
   const [currentTime, setCurrentTime] = useState(0)
   const [volume, setVolume] = useState(0.6)
+  const [isDragging, setIsDragging] = useState(false)
 
   useEffect(() => {
     const audio = audioRef.current
@@ -22,6 +24,7 @@ export function AudioPlayer({ src, title = 'Trilha Sonora' }: AudioPlayerProps) 
     audio.volume = volume
 
     const onTimeUpdate = () => {
+      if (isDragging) return
       setCurrentTime(audio.currentTime)
       setProgress(audio.duration ? (audio.currentTime / audio.duration) * 100 : 0)
     }
@@ -37,7 +40,7 @@ export function AudioPlayer({ src, title = 'Trilha Sonora' }: AudioPlayerProps) 
       audio.removeEventListener('loadedmetadata', onLoadedMetadata)
       audio.removeEventListener('ended', onEnded)
     }
-  }, [volume])
+  }, [volume, isDragging])
 
   const togglePlay = () => {
     const audio = audioRef.current
@@ -50,13 +53,32 @@ export function AudioPlayer({ src, title = 'Trilha Sonora' }: AudioPlayerProps) 
     setIsPlaying(!isPlaying)
   }
 
-  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const seekToFraction = (fraction: number) => {
     const audio = audioRef.current
-    if (!audio) return
-    const val = Number(e.target.value)
-    audio.currentTime = (val / 100) * audio.duration
-    setProgress(val)
+    if (!audio || !audio.duration) return
+    const clamped = Math.max(0, Math.min(1, fraction))
+    audio.currentTime = clamped * audio.duration
+    setProgress(clamped * 100)
+    setCurrentTime(clamped * audio.duration)
   }
+
+  const getClickFraction = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = progressRef.current?.getBoundingClientRect()
+    if (!rect) return 0
+    return (e.clientX - rect.left) / rect.width
+  }
+
+  const handleProgressMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    setIsDragging(true)
+    seekToFraction(getClickFraction(e))
+  }
+
+  const handleProgressMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isDragging) return
+    seekToFraction(getClickFraction(e))
+  }
+
+  const handleProgressMouseUp = () => setIsDragging(false)
 
   const handleVolume = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = Number(e.target.value)
@@ -71,6 +93,9 @@ export function AudioPlayer({ src, title = 'Trilha Sonora' }: AudioPlayerProps) 
     return `${m}:${sec.toString().padStart(2, '0')}`
   }
 
+  // Waveform bar heights — static decorative pattern
+  const barHeights = [3, 6, 9, 12, 8, 14, 10, 6, 11, 14, 9, 7, 12, 8, 4, 10, 13, 7, 5, 9, 12, 6, 14, 10, 8]
+
   return (
     <>
       <audio ref={audioRef} src={src} preload="metadata" />
@@ -81,110 +106,284 @@ export function AudioPlayer({ src, title = 'Trilha Sonora' }: AudioPlayerProps) 
           bottom: 24,
           left: '50%',
           transform: 'translateX(-50%)',
-          width: 'min(480px, calc(100% - 48px))',
-          background: 'rgba(5, 8, 20, 0.85)',
-          backdropFilter: 'blur(16px)',
-          border: '1px solid rgba(255,255,255,0.1)',
-          borderRadius: 16,
-          padding: '14px 20px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 10,
+          width: 'min(500px, calc(100% - 48px))',
+          background: 'linear-gradient(135deg, rgba(2,6,18,0.96) 0%, rgba(4,10,28,0.96) 100%)',
+          backdropFilter: 'blur(20px)',
+          border: '1px solid rgba(100,180,255,0.15)',
+          borderRadius: '8px',
+          padding: '0',
           zIndex: 10,
-          boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+          boxShadow: '0 16px 48px rgba(0,0,0,0.7), 0 0 0 1px rgba(100,180,255,0.05) inset',
+          overflow: 'hidden',
         }}
       >
-        {/* Top row: icon + title + volume */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          {/* Play button */}
-          <button
-            onClick={togglePlay}
-            style={{
-              width: 40,
-              height: 40,
-              borderRadius: '50%',
-              background: '#f5a623',
-              border: 'none',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0,
-              transition: 'transform 0.15s, background 0.15s',
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = '#f5c842' }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = '#f5a623' }}
-          >
-            {isPlaying ? (
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="white">
-                <rect x="2" y="1" width="4" height="12" rx="1"/>
-                <rect x="8" y="1" width="4" height="12" rx="1"/>
-              </svg>
-            ) : (
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="white">
-                <path d="M3 1.5l9 5.5-9 5.5V1.5z"/>
-              </svg>
-            )}
-          </button>
+        {/* Top accent line */}
+        <div
+          style={{
+            height: '1px',
+            background: 'linear-gradient(90deg, transparent 0%, rgba(100,180,255,0.4) 30%, rgba(100,180,255,0.4) 70%, transparent 100%)',
+          }}
+        />
 
-          {/* Title + times */}
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <p style={{
-              fontFamily: 'var(--font-ubuntu)',
-              fontWeight: 500,
-              fontSize: 13,
-              color: '#ffffff',
-              margin: 0,
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
+        {/* Corner brackets */}
+        <div style={{ position: 'absolute', top: '8px', left: '8px', width: '10px', height: '10px', pointerEvents: 'none' }}>
+          <div style={{ position: 'absolute', top: 0, left: 0, width: '6px', height: '6px', borderTop: '1px solid rgba(100,200,255,0.4)', borderLeft: '1px solid rgba(100,200,255,0.4)' }} />
+        </div>
+        <div style={{ position: 'absolute', top: '8px', right: '8px', width: '10px', height: '10px', pointerEvents: 'none' }}>
+          <div style={{ position: 'absolute', top: 0, right: 0, width: '6px', height: '6px', borderTop: '1px solid rgba(100,200,255,0.4)', borderRight: '1px solid rgba(100,200,255,0.4)' }} />
+        </div>
+        <div style={{ position: 'absolute', bottom: '8px', left: '8px', width: '10px', height: '10px', pointerEvents: 'none' }}>
+          <div style={{ position: 'absolute', bottom: 0, left: 0, width: '6px', height: '6px', borderBottom: '1px solid rgba(100,200,255,0.4)', borderLeft: '1px solid rgba(100,200,255,0.4)' }} />
+        </div>
+        <div style={{ position: 'absolute', bottom: '8px', right: '8px', width: '10px', height: '10px', pointerEvents: 'none' }}>
+          <div style={{ position: 'absolute', bottom: 0, right: 0, width: '6px', height: '6px', borderBottom: '1px solid rgba(100,200,255,0.4)', borderRight: '1px solid rgba(100,200,255,0.4)' }} />
+        </div>
+
+        <div style={{ padding: '16px 20px 18px' }}>
+          {/* Label row */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
+            <div style={{ width: '12px', height: '1px', background: 'rgba(100,180,255,0.4)' }} />
+            <span style={{
+              fontFamily: 'monospace',
+              fontSize: '9px',
+              color: 'rgba(100,180,255,0.45)',
+              letterSpacing: '0.2em',
+              textTransform: 'uppercase',
             }}>
-              {title}
-            </p>
-            <p style={{
-              fontFamily: 'var(--font-ubuntu)',
-              fontSize: 11,
-              color: '#8fa3b8',
-              margin: 0,
-            }}>
-              {fmt(currentTime)} / {fmt(duration)}
-            </p>
+              TRANSMISSÃO DE ÁUDIO
+            </span>
+            <div style={{ flex: 1, height: '1px', background: 'rgba(100,180,255,0.1)' }} />
+            {/* Live indicator */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <div style={{
+                width: '5px',
+                height: '5px',
+                borderRadius: '50%',
+                background: isPlaying ? '#4ade80' : 'rgba(100,180,255,0.3)',
+                boxShadow: isPlaying ? '0 0 6px #4ade80' : 'none',
+                transition: 'all 0.3s ease',
+              }} />
+              <span style={{
+                fontFamily: 'monospace',
+                fontSize: '9px',
+                color: isPlaying ? '#4ade80' : 'rgba(100,180,255,0.3)',
+                letterSpacing: '0.1em',
+                transition: 'all 0.3s ease',
+              }}>
+                {isPlaying ? 'AO VIVO' : 'PARADO'}
+              </span>
+            </div>
           </div>
 
-          {/* Volume */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ color: '#8fa3b8' }}>
-              <path d="M2 5h2l3-3v10L4 9H2V5z" fill="currentColor"/>
-              {volume > 0 && <path d="M9 4a3 3 0 010 6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" fill="none"/>}
-            </svg>
-            <input
-              type="range"
-              min={0}
-              max={1}
-              step={0.01}
-              value={volume}
-              onChange={handleVolume}
-              style={{ width: 60, accentColor: '#f5a623', cursor: 'pointer' }}
-            />
+          {/* Main controls row */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+
+            {/* Play/Pause button */}
+            <button
+              onClick={togglePlay}
+              style={{
+                width: '44px',
+                height: '44px',
+                borderRadius: '6px',
+                background: isPlaying
+                  ? 'rgba(100,180,255,0.12)'
+                  : 'rgba(245,166,35,0.15)',
+                border: isPlaying
+                  ? '1px solid rgba(100,180,255,0.3)'
+                  : '1px solid rgba(245,166,35,0.4)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+                transition: 'all 0.2s ease',
+                position: 'relative',
+                overflow: 'hidden',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = isPlaying
+                  ? 'rgba(100,180,255,0.2)'
+                  : 'rgba(245,166,35,0.25)'
+                e.currentTarget.style.transform = 'scale(1.05)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = isPlaying
+                  ? 'rgba(100,180,255,0.12)'
+                  : 'rgba(245,166,35,0.15)'
+                e.currentTarget.style.transform = 'scale(1)'
+              }}
+            >
+              {isPlaying ? (
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <rect x="2.5" y="2" width="3.5" height="10" rx="1" fill="rgba(100,180,255,0.9)" />
+                  <rect x="8" y="2" width="3.5" height="10" rx="1" fill="rgba(100,180,255,0.9)" />
+                </svg>
+              ) : (
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path d="M3.5 2l8 5-8 5V2z" fill="rgba(245,166,35,0.95)" />
+                </svg>
+              )}
+            </button>
+
+            {/* Title + waveform + time */}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '6px' }}>
+                <p style={{
+                  fontFamily: 'var(--font-ubuntu)',
+                  fontWeight: 500,
+                  fontSize: '14px',
+                  color: '#ddeeff',
+                  margin: 0,
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  flex: 1,
+                  minWidth: 0,
+                }}>
+                  {title}
+                </p>
+                <span style={{
+                  fontFamily: 'monospace',
+                  fontSize: '10px',
+                  color: 'rgba(100,180,255,0.5)',
+                  letterSpacing: '0.06em',
+                  flexShrink: 0,
+                  marginLeft: '12px',
+                }}>
+                  {fmt(currentTime)}&nbsp;/&nbsp;{fmt(duration)}
+                </span>
+              </div>
+
+              {/* Waveform bars */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '2px', height: '16px', marginBottom: '8px' }}>
+                {barHeights.map((h, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      width: '2px',
+                      height: `${h}px`,
+                      borderRadius: '1px',
+                      background: isPlaying
+                        ? `rgba(100,180,255,${0.3 + (h / 14) * 0.55})`
+                        : `rgba(100,180,255,${0.1 + (h / 14) * 0.15})`,
+                      transition: 'all 0.3s ease',
+                      animation: isPlaying ? `wave-bar-${(i % 4) + 1} ${0.6 + (i % 3) * 0.2}s ease-in-out infinite alternate` : 'none',
+                    }}
+                  />
+                ))}
+              </div>
+
+              {/* Custom progress track */}
+              <div
+                ref={progressRef}
+                onMouseDown={handleProgressMouseDown}
+                onMouseMove={handleProgressMouseMove}
+                onMouseUp={handleProgressMouseUp}
+                onMouseLeave={handleProgressMouseUp}
+                style={{
+                  height: '4px',
+                  background: 'rgba(100,180,255,0.1)',
+                  borderRadius: '2px',
+                  cursor: 'pointer',
+                  position: 'relative',
+                  overflow: 'hidden',
+                }}
+              >
+                {/* Fill */}
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    height: '100%',
+                    width: `${progress}%`,
+                    background: 'linear-gradient(90deg, rgba(100,180,255,0.6) 0%, rgba(140,210,255,0.9) 100%)',
+                    borderRadius: '2px',
+                    transition: isDragging ? 'none' : 'width 0.1s linear',
+                    boxShadow: '0 0 8px rgba(100,180,255,0.4)',
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Volume control */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none" style={{ color: volume > 0 ? 'rgba(100,180,255,0.6)' : 'rgba(100,180,255,0.25)' }}>
+                <path d="M2 4.5h1.5l2.5-2.5v9L3.5 8.5H2V4.5z" fill="currentColor" />
+                {volume > 0.3 && <path d="M8 3.5a3.5 3.5 0 010 6" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" fill="none" />}
+                {volume <= 0.3 && volume > 0 && <path d="M8 5a1.5 1.5 0 010 3" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" fill="none" />}
+              </svg>
+              <input
+                type="range"
+                min={0}
+                max={1}
+                step={0.01}
+                value={volume}
+                onChange={handleVolume}
+                style={{
+                  width: '52px',
+                  cursor: 'pointer',
+                  accentColor: 'rgba(100,180,255,0.8)',
+                  appearance: 'none',
+                  WebkitAppearance: 'none',
+                  height: '3px',
+                  background: `linear-gradient(90deg, rgba(100,180,255,0.7) 0%, rgba(100,180,255,0.7) ${volume * 100}%, rgba(100,180,255,0.12) ${volume * 100}%, rgba(100,180,255,0.12) 100%)`,
+                  borderRadius: '2px',
+                  outline: 'none',
+                  border: 'none',
+                }}
+              />
+            </div>
           </div>
         </div>
 
-        {/* Progress bar */}
-        <input
-          type="range"
-          min={0}
-          max={100}
-          step={0.1}
-          value={progress}
-          onChange={handleSeek}
+        {/* Bottom accent line */}
+        <div
           style={{
-            width: '100%',
-            accentColor: '#f5a623',
-            cursor: 'pointer',
-            height: 4,
+            height: '1px',
+            background: 'linear-gradient(90deg, transparent 0%, rgba(100,180,255,0.15) 50%, transparent 100%)',
           }}
         />
       </div>
+
+      <style>{`
+        @keyframes wave-bar-1 {
+          from { transform: scaleY(0.5); }
+          to   { transform: scaleY(1.2); }
+        }
+        @keyframes wave-bar-2 {
+          from { transform: scaleY(0.7); }
+          to   { transform: scaleY(1.4); }
+        }
+        @keyframes wave-bar-3 {
+          from { transform: scaleY(0.4); }
+          to   { transform: scaleY(1.1); }
+        }
+        @keyframes wave-bar-4 {
+          from { transform: scaleY(0.6); }
+          to   { transform: scaleY(1.3); }
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          width: 10px;
+          height: 10px;
+          border-radius: 50%;
+          background: rgba(100,180,255,0.9);
+          cursor: pointer;
+          box-shadow: 0 0 6px rgba(100,180,255,0.6);
+          border: none;
+        }
+        input[type=range]::-moz-range-thumb {
+          width: 10px;
+          height: 10px;
+          border-radius: 50%;
+          background: rgba(100,180,255,0.9);
+          cursor: pointer;
+          box-shadow: 0 0 6px rgba(100,180,255,0.6);
+          border: none;
+        }
+      `}</style>
     </>
   )
 }

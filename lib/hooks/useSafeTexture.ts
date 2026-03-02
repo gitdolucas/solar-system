@@ -18,7 +18,7 @@ export function useSafeTexture(url: string): THREE.Texture | null {
 
   useEffect(() => {
     if (cache.has(url)) {
-      setTexture(cache.get(url) ?? null)
+      queueMicrotask(() => setTexture(cache.get(url) ?? null))
       return
     }
 

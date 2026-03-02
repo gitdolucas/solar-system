@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useRef, Suspense } from 'react'
+import React, { createContext, Suspense } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { Stars, Preload } from '@react-three/drei'
 import * as THREE from 'three'
@@ -19,6 +19,11 @@ export const PlanetRefsContext = createContext<Map<string, React.RefObject<THREE
   new Map()
 )
 
+function usePlanetRefsMap() {
+  const [map] = React.useState(() => new Map<string, React.RefObject<THREE.Group>>())
+  return map
+}
+
 function SceneContent() {
   const setSimulationSpeed = useSolarStore((s) => s.setSimulationSpeed)
   const setBackgroundMusicPlaying = useSolarStore((s) => s.setBackgroundMusicPlaying)
@@ -32,7 +37,7 @@ function SceneContent() {
     },
   }))
 
-  const [{ 'Play / Pause': _playPause, Volume }] = useControls(
+  const [musicControls] = useControls(
     'Background Music',
     () => ({
       'Play / Pause': button(() => {
@@ -47,6 +52,7 @@ function SceneContent() {
     }),
     [setBackgroundMusicPlaying]
   )
+  const Volume = musicControls.Volume
 
   // Push combined value into store every render (no re-render cost inside useFrame)
   const multiplierMap: Record<string, number> = { '×0.1': 0.1, '×1': 1, '×10': 10, '×100': 100 }
@@ -81,10 +87,10 @@ function SceneContent() {
 }
 
 export function Scene() {
-  const planetRefsMap = useRef<Map<string, React.RefObject<THREE.Group>>>(new Map())
+  const planetRefsMap = usePlanetRefsMap()
 
   return (
-    <PlanetRefsContext.Provider value={planetRefsMap.current}>
+    <PlanetRefsContext.Provider value={planetRefsMap}>
       <Canvas
         shadows="soft"
         gl={{

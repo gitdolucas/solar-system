@@ -13,20 +13,24 @@ const uTimePlasma = { value: 0 }
 
 function SunMaterial() {
   const texture = useTexture('/textures/sun.jpg')
-  texture.wrapS = THREE.RepeatWrapping
+  const wrappedTexture = useMemo(() => {
+    const t = texture.clone()
+    t.wrapS = THREE.RepeatWrapping
+    return t
+  }, [texture])
   const material = useMemo(
     () =>
       new THREE.ShaderMaterial({
         vertexShader: surfaceVertex,
         fragmentShader: surfaceFragment,
         uniforms: {
-          uMap: { value: texture },
+          uMap: { value: wrappedTexture },
           uEmissiveIntensity: { value: 1.5 },
           uEmissiveTint: { value: new THREE.Vector3(1, 0.6, 0.1) },
         },
         side: THREE.FrontSide,
       }),
-    [texture]
+    [wrappedTexture]
   )
   return <primitive object={material} attach="material" />
 }

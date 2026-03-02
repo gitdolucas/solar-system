@@ -6,6 +6,16 @@ import * as THREE from 'three'
 import { vertexShader, fragmentShader } from '@/lib/shaders/asteroidBelt'
 import { useSolarStore } from '@/lib/store/useSolarStore'
 
+/** Seeded RNG (mulberry32) for deterministic geometry - keeps render pure */
+function createSeededRandom(seed: number) {
+  return function next() {
+    let t = (seed += 0x6d2b79f5)
+    t = Math.imul(t ^ (t >>> 15), t | 1)
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61)
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  }
+}
+
 export interface AsteroidBeltProps {
   innerRadius: number
   outerRadius: number
@@ -39,16 +49,18 @@ export function AsteroidBelt({
     const positions = new Float32Array(count * 3)
     const phases = new Float32Array(count)
     const sizes = new Float32Array(count)
+    const seed = 31 * innerRadius + 17 * outerRadius + count + thickness * 100
+    const random = createSeededRandom(seed)
 
     for (let i = 0; i < count; i++) {
-      const angle = Math.random() * Math.PI * 2
-      const r = innerRadius + Math.random() * (outerRadius - innerRadius)
-      const y = thickness * (Math.random() - 0.5)
+      const angle = random() * Math.PI * 2
+      const r = innerRadius + random() * (outerRadius - innerRadius)
+      const y = thickness * (random() - 0.5)
       positions[i * 3] = Math.cos(angle) * r
       positions[i * 3 + 1] = y
       positions[i * 3 + 2] = Math.sin(angle) * r
-      phases[i] = Math.random() * Math.PI * 2
-      sizes[i] = sizeMin + Math.random() * (sizeMax - sizeMin)
+      phases[i] = random() * Math.PI * 2
+      sizes[i] = sizeMin + random() * (sizeMax - sizeMin)
     }
 
     geo.setAttribute('position', new THREE.BufferAttribute(positions, 3))

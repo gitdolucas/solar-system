@@ -23,6 +23,7 @@ const HOVER_ZOOM_BACK_THRESHOLD = 0.5
 
 export function CameraController() {
   const { camera } = useThree()
+  const cameraRef = useRef<THREE.PerspectiveCamera>(camera as THREE.PerspectiveCamera)
   const controlsRef = useRef<OrbitControlsImpl>(null)
   const refsMap = useContext(PlanetRefsContext)
 
@@ -87,15 +88,16 @@ export function CameraController() {
   }, [selectedBody])
 
   useFrame((_, delta) => {
+    cameraRef.current = camera as THREE.PerspectiveCamera
     const lerpFactor = 1 - Math.exp(-4 * delta)
-    const perspCam = camera as THREE.PerspectiveCamera
+    const cam = cameraRef.current
     const fovLerp = 1 - Math.exp(-HOVER_FOV_LERP * delta)
 
     // --- MODE 1: animating toward a new target ---
     if (isAnimating.current) {
       // Restore FOV to default when user clicked a menu option (was in hover narrow FOV)
-      perspCam.fov = THREE.MathUtils.lerp(perspCam.fov, DEFAULT_FOV, fovLerp)
-      perspCam.updateProjectionMatrix()
+      cam.fov = THREE.MathUtils.lerp(cam.fov, DEFAULT_FOV, fovLerp)
+      cam.updateProjectionMatrix()
 
       // Keep target updated to live body position while flying in
       if (selectedBody && selectedBody.type !== 'sun') {
@@ -121,7 +123,7 @@ export function CameraController() {
         }
       }
 
-      camera.position.lerp(targetCamPos.current, lerpFactor)
+      cam.position.lerp(targetCamPos.current, lerpFactor)
 
       if (controlsRef.current) {
         controlsRef.current.target.lerp(targetLookAt.current, lerpFactor)
@@ -129,9 +131,9 @@ export function CameraController() {
       }
 
       // Arrival check
-      _camDiff.current.subVectors(camera.position, targetCamPos.current)
+      _camDiff.current.subVectors(cam.position, targetCamPos.current)
       if (_camDiff.current.length() < ARRIVAL_THRESHOLD) {
-        camera.position.copy(targetCamPos.current)
+        cam.position.copy(targetCamPos.current)
         if (controlsRef.current) {
           controlsRef.current.target.copy(targetLookAt.current)
           controlsRef.current.update()
@@ -140,7 +142,7 @@ export function CameraController() {
 
         // Start tracking if arrived at a moving body (planet or moon)
         if (selectedBody && selectedBody.type !== 'sun') {
-          camOffset.current.subVectors(camera.position, targetLookAt.current)
+          camOffset.current.subVectors(cam.position, targetLookAt.current)
           _prevBodyPos.current.copy(targetLookAt.current)
           isTrackingBody.current = true
         }
@@ -150,8 +152,8 @@ export function CameraController() {
 
     // --- MODE 2: tracking a planet/moon after arrival ---
     if (isTrackingBody.current && selectedBody && selectedBody.type !== 'sun') {
-      perspCam.fov = THREE.MathUtils.lerp(perspCam.fov, DEFAULT_FOV, fovLerp)
-      perspCam.updateProjectionMatrix()
+      cam.fov = THREE.MathUtils.lerp(cam.fov, DEFAULT_FOV, fovLerp)
+      cam.updateProjectionMatrix()
 
       const bodyRef = refsMap.get(selectedBody.id)
       if (bodyRef?.current && controlsRef.current) {
@@ -161,9 +163,9 @@ export function CameraController() {
         const dy = _worldPos.current.y - _prevBodyPos.current.y
         const dz = _worldPos.current.z - _prevBodyPos.current.z
 
-        camera.position.x += dx
-        camera.position.y += dy
-        camera.position.z += dz
+        cam.position.x += dx
+        cam.position.y += dy
+        cam.position.z += dz
         controlsRef.current.target.copy(_worldPos.current)
         controlsRef.current.update()
 
@@ -195,16 +197,16 @@ export function CameraController() {
 
         // Reduce FOV only while hovering (no selection). On click, restore to default FOV.
         const targetFov = selectedBody ? DEFAULT_FOV : HOVER_FOV
-        perspCam.fov = THREE.MathUtils.lerp(perspCam.fov, targetFov, fovLerp)
-        perspCam.updateProjectionMatrix()
+        cam.fov = THREE.MathUtils.lerp(cam.fov, targetFov, fovLerp)
+        cam.updateProjectionMatrix()
         controlsRef.current.update()
       } else {
         if (prevHoveredBody.current) hoverZoomBack.current = true
         prevHoveredBody.current = null
 
         // Restore FOV and optionally restore look-at target
-        perspCam.fov = THREE.MathUtils.lerp(perspCam.fov, DEFAULT_FOV, fovLerp)
-        perspCam.updateProjectionMatrix()
+        cam.fov = THREE.MathUtils.lerp(cam.fov, DEFAULT_FOV, fovLerp)
+        cam.updateProjectionMatrix()
 
         if (!selectedBody) {
           // No selection (e.g. user clicked back): always look at the sun
