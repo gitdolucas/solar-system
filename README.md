@@ -1,36 +1,113 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🪐 Sistema Solar Interativo
 
-## Getting Started
+> Um projeto feito de pai para filho — para ajudá-lo a entender onde vivemos neste cosmos tão grande.
 
-First, run the development server:
+Este projeto nasceu de uma vontade simples: mostrar ao meu filho o lugar que habitamos no universo. Mais do que um exercício técnico, é uma janela para o espaço que podemos explorar juntos — girando planetas, descobrindo luas, e sentindo a imensidão que existe além do nosso céu.
+
+## ✨ O que você encontra aqui
+
+- Todos os **8 planetas do Sistema Solar** com texturas reais e órbitas animadas
+- **Luas** dos planetas, visíveis ao selecionar cada planeta
+- **Cinturão de asteroides** entre Marte e Júpiter
+- **Câmera interativa** — arraste, zoom e explore livremente
+- Informações sobre cada planeta ao clicar nele
+- Renderização 3D em tempo real com WebGL
+
+## 🛠️ Tecnologias
+
+| Tecnologia | Uso |
+|---|---|
+| [Next.js 16](https://nextjs.org/) | Framework React com App Router |
+| [React Three Fiber](https://r3f.docs.pmnd.rs/) | Renderização 3D com React |
+| [Three.js](https://threejs.org/) | Motor de renderização WebGL |
+| [Drei](https://github.com/pmndrs/drei) | Helpers para R3F |
+| [Zustand](https://zustand-demo.pmnd.rs/) | Gerenciamento de estado |
+| [Tailwind CSS v4](https://tailwindcss.com/) | Estilização |
+| TypeScript | Tipagem estática |
+
+## 🚀 Como rodar
+
+### Pré-requisitos
+
+- [Node.js](https://nodejs.org/) versão 18 ou superior
+- npm (já vem com o Node)
+
+### Instalação
+
+```bash
+# Clone o repositório
+git clone <url-do-repositorio>
+cd solar-system
+
+# Instale as dependências
+npm install
+```
+
+### Iniciando o servidor de desenvolvimento
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abra [http://localhost:3000](http://localhost:3000) no navegador.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Outros comandos
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+# Build de produção
+npm run build
 
-## Learn More
+# Rodar em modo produção (após o build)
+npm start
 
-To learn more about Next.js, take a look at the following resources:
+# Verificar erros de lint
+npm run lint
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🗂️ Estrutura do projeto
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+solar-system/
+├── app/
+│   └── page.tsx              # Página principal (Server Component)
+├── components/
+│   └── canvas/
+│       ├── Scene.tsx          # Canvas 3D principal
+│       ├── SceneClient.tsx    # Wrapper client-side (necessário para WebGL)
+│       ├── Planet.tsx         # Componente de planeta
+│       ├── Moon.tsx           # Componente de lua
+│       ├── Sun.tsx            # Sol com luz pontual
+│       ├── Rings.tsx          # Anéis (Saturno e Urano)
+│       ├── OrbitLine.tsx      # Linhas de órbita
+│       ├── AsteroidBelt.tsx   # Cinturão de asteroides
+│       └── CameraController.tsx # Controles de câmera
+├── lib/
+│   ├── data/
+│   │   ├── planets.ts         # Dados dos planetas
+│   │   ├── moons.ts           # Dados das luas
+│   │   └── sun.ts             # Dados do sol
+│   └── store/
+│       └── useSolarStore.ts   # Estado global (Zustand)
+└── public/
+    └── textures/              # Texturas dos planetas (.jpg)
+```
 
-## Deploy on Vercel
+## 🖼️ Texturas
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+As texturas são da [Solar System Scope](https://www.solarsystemscope.com/textures/) (arquivos `2k_*`). Se quiser qualidade maior, baixe as versões originais e coloque em `public/textures/` com os nomes:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+sun.jpg, mercury.jpg, venus.jpg, earth.jpg, mars.jpg,
+jupiter.jpg, saturn.jpg, saturn_ring.png, uranus.jpg, neptune.jpg,
+moon.jpg
+```
+
+## 🌌 Para o meu filho
+
+O cosmos é imenso — mas também é nosso. Cada estrela que você vê à noite é um sol distante. E nós, aqui na Terra, somos parte disso tudo. Espero que esse projeto te ajude a sentir essa grandeza, e que desperte em você a mesma curiosidade que me move.
+
+*Com amor, seu pai.*
+
+---
+
+Feito com Next.js, React Three Fiber e muita curiosidade.
