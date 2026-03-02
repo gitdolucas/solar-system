@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Pacifico, Ubuntu } from 'next/font/google'
+import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 
 const pacifico = Pacifico({
@@ -26,6 +27,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="pt-BR" className={`${pacifico.variable} ${ubuntu.variable}`}>
       <body className="antialiased" style={{ fontFamily: 'var(--font-ubuntu), sans-serif' }} suppressHydrationWarning>
         {children}
+        <Analytics />
       </body>
     </html>
   )
