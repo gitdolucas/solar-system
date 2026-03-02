@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react'
 import { useSolarStore } from '@/lib/store/useSolarStore'
 
 const FACTS = [
@@ -161,8 +161,8 @@ export function SplashScreen({ texturesLoading }: { texturesLoading: boolean }) 
         userSelect: 'none',
       }}
     >
-      {/* Star field — only render on client to avoid SSR/CSR mismatch */}
-      {typeof window !== 'undefined' && <StarField />}
+      {/* Star field */}
+      <StarField />
 
       {/* Main content */}
       <div style={{
@@ -400,18 +400,28 @@ export function SplashScreen({ texturesLoading }: { texturesLoading: boolean }) 
   )
 }
 
-// Purely decorative static star field
+// Simple deterministic pseudo-random generator based on an index.
+function pseudoRandom(seed: number) {
+  const x = Math.sin(seed) * 10000
+  return x - Math.floor(x)
+}
+
+// Purely decorative static star field — deterministic across server and client.
 function StarField() {
-  const [stars] = useState(
+  const stars = useMemo(
     () =>
-      Array.from({ length: 160 }, () => ({
-        x: Math.random() * 100,
-        y: Math.random() * 100,
-        size: Math.random() * 1.6 + 0.4,
-        opacity: Math.random() * 0.5 + 0.15,
-        duration: Math.random() * 4 + 3,
-        delay: Math.random() * 5,
-      }))
+      Array.from({ length: 160 }, (_, i) => {
+        const rand = (offset: number) => pseudoRandom(i * 7.13 + offset)
+        return {
+          x: rand(0) * 100,
+          y: rand(1) * 100,
+          size: rand(2) * 1.6 + 0.4,
+          opacity: rand(3) * 0.5 + 0.15,
+          duration: rand(4) * 4 + 3,
+          delay: rand(5) * 5,
+        }
+      }),
+    []
   )
 
   return (
@@ -423,14 +433,14 @@ function StarField() {
             position: 'absolute',
             left: `${s.x}%`,
             top: `${s.y}%`,
-            width: s.size,
-            height: s.size,
+            width: `${s.size.toFixed(4)}px`,
+            height: `${s.size.toFixed(4)}px`,
             borderRadius: '50%',
             background: '#fff',
             // @ts-expect-error CSS custom property
-            '--star-base-opacity': s.opacity,
-            opacity: s.opacity,
-            animation: `star-twinkle ${s.duration}s ease-in-out ${s.delay}s infinite`,
+            '--star-base-opacity': `${s.opacity}`,
+            opacity: s.opacity.toFixed(6),
+            animation: `star-twinkle ${s.duration.toFixed(5)}s ease-in-out ${s.delay.toFixed(6)}s infinite`,
           }}
         />
       ))}
