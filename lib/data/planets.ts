@@ -8,6 +8,7 @@ export const PLANETS: PlanetData[] = [
     distanciaDaSol: '57,9 milhões de km',
     tamanhoRelativo: '0,38× a Terra',
     temperatura: '-180°C a 430°C',
+    audio: '/audio/audio-mercurio.mp3',
     curiosidades: [
       { texto: 'Mercúrio não tem atmosfera, então o céu é completamente negro!' },
       { texto: 'Um dia em Mercúrio dura mais do que um ano mercuriano.' },
@@ -31,6 +32,7 @@ export const PLANETS: PlanetData[] = [
     distanciaDaSol: '108,2 milhões de km',
     tamanhoRelativo: '0,95× a Terra',
     temperatura: '465°C em média',
+    audio: '/audio/audio-venus.mp3',
     curiosidades: [
       { texto: 'Vênus gira ao contrário de todos os outros planetas!' },
       { texto: 'É o planeta mais quente do Sistema Solar, mais quente que Mercúrio.' },
@@ -155,7 +157,7 @@ export const PLANETS: PlanetData[] = [
       { texto: 'Urano orbita o Sol deitado de lado — sua inclinação é de 98 graus!' },
       { texto: 'Urano tem anéis, assim como Saturno, mas muito mais finos e escuros.' },
       { texto: 'Um inverno em Urano pode durar 21 anos terrestres.' },
-      { texto: 'Urano é o planeta mais frio do Sistema Solar, mais frio que Netuno!' },
+      { texto: 'Urano detém o recorde da temperatura mais baixa já medida no Sistema Solar: -224°C!' },
     ],
     textura: '/textures/uranus.jpg',
     orbitRadius: 108,
