@@ -161,8 +161,8 @@ export function SplashScreen({ texturesLoading }: { texturesLoading: boolean }) 
         userSelect: 'none',
       }}
     >
-      {/* Star field */}
-      <StarField />
+      {/* Star field — only render on client to avoid SSR/CSR mismatch */}
+      {typeof window !== 'undefined' && <StarField />}
 
       {/* Main content */}
       <div style={{
