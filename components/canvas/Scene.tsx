@@ -62,6 +62,7 @@ function SceneContent() {
         disabled: true,
       },
     }),
+    { collapsed: true },
     [setBackgroundMusicPlaying]
   )
   const Volume = musicControls.Volume
@@ -78,9 +79,12 @@ function SceneContent() {
   setOrbitMode(Modo === 'Lúdico' ? 'ludico' : 'real')
   setBackgroundMusicVolume(Volume)
 
-  // Tick the shared intro clock and trigger Lúdico once all phases have started
+  const splashDismissed = useSolarStore((s) => s.splashDismissed)
+
+  // Tick the shared intro clock only after the splash is dismissed
   const introSwitchedRef = useRef(false)
   useFrame((_, delta) => {
+    if (!splashDismissed) return
     introClockRef.elapsed += delta
     if (introSwitchedRef.current) return
     if (introClockRef.elapsed >= LUDICO_SWITCH_TIME) {

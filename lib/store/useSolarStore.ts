@@ -41,4 +41,7 @@ export const useSolarStore = create<SolarStoreState>((set, get) => ({
 
   introComplete: false,
   setIntroComplete: () => set({ introComplete: true }),
+
+  splashDismissed: false,
+  dismissSplash: () => set({ splashDismissed: true }),
 }))

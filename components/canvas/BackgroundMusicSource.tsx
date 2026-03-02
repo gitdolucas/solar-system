@@ -9,28 +9,9 @@ export function BackgroundMusicSource() {
   const audioRef = useRef<HTMLAudioElement>(null)
   const playing = useSolarStore((s) => s.backgroundMusicPlaying)
   const volume = useSolarStore((s) => s.backgroundMusicVolume)
-  const setBackgroundMusicPlaying = useSolarStore((s) => s.setBackgroundMusicPlaying)
 
-  useEffect(() => {
-    const startOnGesture = () => {
-      const el = audioRef.current
-      if (el) {
-        el.play().catch(() => {})
-        setBackgroundMusicPlaying(true)
-      }
-      document.removeEventListener('click', startOnGesture)
-      document.removeEventListener('keydown', startOnGesture)
-      document.removeEventListener('touchstart', startOnGesture)
-    }
-    document.addEventListener('click', startOnGesture)
-    document.addEventListener('keydown', startOnGesture)
-    document.addEventListener('touchstart', startOnGesture)
-    return () => {
-      document.removeEventListener('click', startOnGesture)
-      document.removeEventListener('keydown', startOnGesture)
-      document.removeEventListener('touchstart', startOnGesture)
-    }
-  }, [setBackgroundMusicPlaying])
+  // Music is now started by the SplashScreen via setBackgroundMusicPlaying(true).
+  // No auto-start-on-gesture needed here.
 
   useEffect(() => {
     const audio = audioRef.current

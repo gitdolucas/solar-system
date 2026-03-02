@@ -1,5 +1,4 @@
-import { Sidebar } from '@/components/ui/Sidebar'
-import { SubjectAudioPlayer } from '@/components/ui/SubjectAudioPlayer'
+import { SimulationUI } from '@/components/ui/SimulationUI'
 import { SceneClient } from '@/components/canvas/SceneClient'
 
 export default function Home() {
@@ -13,7 +12,7 @@ export default function Home() {
         background: '#000',
       }}
     >
-      <Sidebar />
+      <SimulationUI />
       <main
         style={{
           position: 'relative',
@@ -23,7 +22,6 @@ export default function Home() {
         }}
       >
         <SceneClient />
-        <SubjectAudioPlayer />
       </main>
     </div>
   )
