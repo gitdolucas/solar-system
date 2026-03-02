@@ -28,6 +28,8 @@ export interface AsteroidBeltProps {
   orbitSpeed?: number
   /** Multiplier for particle size (e.g. use >1 for farther belts so they don't look tiny). Default 1 */
   sizeScale?: number
+  /** Target inclination in radians for Lúdico mode. */
+  ludicInclination?: number
 }
 
 export function AsteroidBelt({
@@ -40,6 +42,7 @@ export function AsteroidBelt({
   thickness = 0.4,
   orbitSpeed = 0.2,
   sizeScale = 1,
+  ludicInclination = 0,
 }: AsteroidBeltProps) {
   const pointsRef = useRef<THREE.Points>(null)
   const orbitGroupRef = useRef<THREE.Group>(null)
@@ -82,10 +85,13 @@ export function AsteroidBelt({
   )
 
   useFrame((_, delta) => {
-    const speed = useSolarStore.getState().simulationSpeed
-    const dt = delta * speed
+    const { simulationSpeed, orbitMode } = useSolarStore.getState()
+    const dt = delta * simulationSpeed
     if (orbitGroupRef.current) {
       orbitGroupRef.current.rotation.y += orbitSpeed * dt * 0.04
+      const targetInclination = orbitMode === 'ludico' ? ludicInclination : 0
+      orbitGroupRef.current.rotation.x +=
+        (targetInclination - orbitGroupRef.current.rotation.x) * (1 - Math.exp(-4 * delta))
     }
     const mat = pointsRef.current?.material as THREE.ShaderMaterial | undefined
     if (mat?.uniforms?.uTime) mat.uniforms.uTime.value += dt

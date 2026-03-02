@@ -80,8 +80,8 @@ function SceneContent() {
 
       <Sun />
 
-      <AsteroidBelt innerRadius={37} outerRadius={49} count={60000} color="#8b7355" orbitSpeed={0.25} />
-      <AsteroidBelt innerRadius={152} outerRadius={210} count={40000} color="#6b5d4f" orbitSpeed={0.02} sizeScale={3.5} />
+      <AsteroidBelt innerRadius={37} outerRadius={49} count={60000} color="#8b7355" orbitSpeed={0.25} ludicInclination={0.44} />
+      <AsteroidBelt innerRadius={152} outerRadius={210} count={40000} color="#6b5d4f" orbitSpeed={0.02} sizeScale={3.5} ludicInclination={-0.61} />
 
       {PLANETS.map((planet) => (
         <Planet
