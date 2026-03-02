@@ -70,6 +70,8 @@ export interface SelectedBody {
 
 export interface SolarStoreState {
   selectedBody: SelectedBody | null
+  /** The body selected before the current one — used for back-navigation (e.g. moon → planet) */
+  previousBody: SelectedBody | null
   /** Set by sidebar only; drives camera focus/zoom on menu hover */
   hoveredBody: SelectedBody | null
   /** Set by canvas and sidebar; drives hover balloon only (no camera focus) */

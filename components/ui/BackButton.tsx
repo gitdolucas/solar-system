@@ -4,6 +4,14 @@ import { useSolarStore } from '@/lib/store/useSolarStore'
 
 export function BackButton() {
   const clearSelection = useSolarStore((s) => s.clearSelection)
+  const previousBody = useSolarStore((s) => s.previousBody)
+  const selectedBody = useSolarStore((s) => s.selectedBody)
+
+  // Label: when viewing a moon and previous is a planet, say so
+  const label =
+    selectedBody?.type === 'moon' && previousBody?.type === 'planet'
+      ? 'Planeta'
+      : 'Voltar'
 
   return (
     <button
@@ -38,7 +46,7 @@ export function BackButton() {
       <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
         <path d="M7 2L3 5L7 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
-      Voltar
+      {label}
     </button>
   )
 }

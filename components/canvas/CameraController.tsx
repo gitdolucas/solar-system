@@ -152,9 +152,6 @@ export function CameraController() {
 
     // --- MODE 2: tracking a planet/moon after arrival ---
     if (isTrackingBody.current && selectedBody && selectedBody.type !== 'sun') {
-      cam.fov = THREE.MathUtils.lerp(cam.fov, DEFAULT_FOV, fovLerp)
-      cam.updateProjectionMatrix()
-
       const bodyRef = refsMap.get(selectedBody.id)
       if (bodyRef?.current && controlsRef.current) {
         bodyRef.current.getWorldPosition(_worldPos.current)
@@ -166,10 +163,40 @@ export function CameraController() {
         cam.position.x += dx
         cam.position.y += dy
         cam.position.z += dz
-        controlsRef.current.target.copy(_worldPos.current)
-        controlsRef.current.update()
 
+        // Save planet position now — before _worldPos may be overwritten below
         _prevBodyPos.current.copy(_worldPos.current)
+
+        // When hovering a moon while tracking its parent planet:
+        // only steer look-at + FOV toward moon; camera position stays locked to planet
+        const hoveringMoonOfSelectedPlanet =
+          hoveredBody?.type === 'moon' && selectedBody.type === 'planet'
+
+        if (hoveringMoonOfSelectedPlanet) {
+          if (!prevHoveredBody.current) {
+            hoverStartTarget.current.copy(controlsRef.current.target)
+            hoverZoomBack.current = false
+          }
+          prevHoveredBody.current = hoveredBody
+
+          const moonRef = refsMap.get(hoveredBody!.id)
+          if (moonRef?.current) {
+            moonRef.current.getWorldPosition(_worldPos.current)
+            controlsRef.current.target.lerp(_worldPos.current, lerpFactor)
+          }
+          cam.fov = THREE.MathUtils.lerp(cam.fov, HOVER_FOV, fovLerp)
+        } else {
+          if (prevHoveredBody.current) hoverZoomBack.current = true
+          prevHoveredBody.current = null
+
+          // Restore look-at to the tracked planet (already in _prevBodyPos)
+          controlsRef.current.target.copy(_prevBodyPos.current)
+
+          cam.fov = THREE.MathUtils.lerp(cam.fov, DEFAULT_FOV, fovLerp)
+        }
+
+        cam.updateProjectionMatrix()
+        controlsRef.current.update()
       }
     }
 

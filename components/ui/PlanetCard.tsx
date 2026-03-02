@@ -1,4 +1,8 @@
+'use client'
+
 import type { PlanetData } from '@/lib/types'
+import { MOONS } from '@/lib/data/moons'
+import { useSolarStore } from '@/lib/store/useSolarStore'
 
 interface StatRowProps {
   label: string
@@ -71,6 +75,12 @@ interface PlanetCardProps {
 }
 
 export function PlanetCard({ planet }: PlanetCardProps) {
+  const selectBody = useSolarStore((s) => s.selectBody)
+  const setHoveredBody = useSolarStore((s) => s.setHoveredBody)
+  const setTooltipBody = useSolarStore((s) => s.setTooltipBody)
+
+  const planetMoons = MOONS.filter((m) => planet.moons.includes(m.id))
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
@@ -242,44 +252,139 @@ export function PlanetCard({ planet }: PlanetCardProps) {
         </div>
       </div>
 
-      {/* Moons callout */}
-      {planet.moons.length > 0 && (
-        <div
-          style={{
-            padding: '12px 14px',
-            background: `${planet.cor}08`,
-            border: `1px solid ${planet.cor}30`,
-            borderRadius: '4px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-          }}
-        >
-          <div
-            style={{
-              width: '28px',
-              height: '28px',
-              borderRadius: '50%',
-              border: `1.5px solid ${planet.cor}60`,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0,
-            }}
-          >
-            <span style={{ fontSize: '14px' }}>🌙</span>
+      {/* Moon list */}
+      {planetMoons.length > 0 && (
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+            <div style={{ width: '12px', height: '1px', background: 'rgba(180,200,255,0.3)' }} />
+            <span
+              style={{
+                fontFamily: 'monospace',
+                fontSize: '9px',
+                color: 'rgba(180,200,255,0.45)',
+                letterSpacing: '0.18em',
+                textTransform: 'uppercase',
+              }}
+            >
+              SATÉLITES
+            </span>
+            <div style={{ flex: 1, height: '1px', background: 'rgba(180,200,255,0.08)' }} />
+            <span
+              style={{
+                fontFamily: 'monospace',
+                fontSize: '9px',
+                color: 'rgba(180,200,255,0.25)',
+                letterSpacing: '0.1em',
+              }}
+            >
+              {planetMoons.length}
+            </span>
           </div>
-          <p
-            style={{
-              fontFamily: 'var(--font-ubuntu)',
-              fontSize: '13px',
-              color: `${planet.cor}cc`,
-              margin: 0,
-            }}
-          >
-            <strong style={{ color: planet.cor }}>{planet.moons.length} lua{planet.moons.length > 1 ? 's'  : ''}</strong>{' '}
-            <span style={{ color: 'rgba(210,230,255,0.5)' }}>visíveis ao redor do planeta</span>
-          </p>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+            {planetMoons.map((moon, index) => (
+              <button
+                key={moon.id}
+                onClick={() => selectBody('moon', moon.id)}
+                onMouseEnter={() => {
+                  setHoveredBody({ type: 'moon', id: moon.id })
+                  setTooltipBody({ type: 'moon', id: moon.id })
+                }}
+                onMouseLeave={() => {
+                  setHoveredBody(null)
+                  setTooltipBody(null)
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  padding: '9px 12px',
+                  background: 'transparent',
+                  border: '1px solid transparent',
+                  borderRadius: '5px',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  width: '100%',
+                  transition: 'all 0.15s ease',
+                }}
+                onMouseOver={(e) => {
+                  const btn = e.currentTarget
+                  btn.style.background = `${moon.cor}0f`
+                  btn.style.border = `1px solid ${moon.cor}40`
+                }}
+                onMouseOut={(e) => {
+                  const btn = e.currentTarget
+                  btn.style.background = 'transparent'
+                  btn.style.border = '1px solid transparent'
+                }}
+              >
+                {/* Index */}
+                <span
+                  style={{
+                    fontFamily: 'monospace',
+                    fontSize: '10px',
+                    color: 'rgba(180,200,255,0.2)',
+                    letterSpacing: '0.06em',
+                    width: '16px',
+                    flexShrink: 0,
+                  }}
+                >
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+
+                {/* Moon color dot */}
+                <div
+                  style={{
+                    width: '8px',
+                    height: '8px',
+                    borderRadius: '50%',
+                    background: moon.cor,
+                    boxShadow: `0 0 6px ${moon.cor}70`,
+                    flexShrink: 0,
+                  }}
+                />
+
+                {/* Name */}
+                <span
+                  style={{
+                    fontFamily: 'var(--font-ubuntu)',
+                    fontSize: '14px',
+                    fontWeight: 500,
+                    color: '#ccdff0',
+                    flex: 1,
+                  }}
+                >
+                  {moon.nome}
+                </span>
+
+                {/* Alias */}
+                <span
+                  style={{
+                    fontFamily: 'monospace',
+                    fontSize: '9px',
+                    color: 'rgba(180,200,255,0.3)',
+                    letterSpacing: '0.05em',
+                    maxWidth: '80px',
+                    textAlign: 'right',
+                    lineHeight: 1.3,
+                  }}
+                >
+                  {moon.apelido}
+                </span>
+
+                {/* Arrow */}
+                <svg
+                  width="10"
+                  height="10"
+                  viewBox="0 0 10 10"
+                  fill="none"
+                  style={{ color: 'rgba(180,200,255,0.25)', flexShrink: 0 }}
+                >
+                  <path d="M3 2l4 3-4 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+            ))}
+          </div>
         </div>
       )}
     </div>
