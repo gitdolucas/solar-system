@@ -26,13 +26,19 @@ function usePlanetRefsMap() {
 
 function SceneContent() {
   const setSimulationSpeed = useSolarStore((s) => s.setSimulationSpeed)
+  const setOrbitMode = useSolarStore((s) => s.setOrbitMode)
   const setBackgroundMusicPlaying = useSolarStore((s) => s.setBackgroundMusicPlaying)
   const setBackgroundMusicVolume = useSolarStore((s) => s.setBackgroundMusicVolume)
 
-  const [{ Velocidade }] = useControls('Simulação', () => ({
+  const [{ Velocidade, Modo }] = useControls('Simulação', () => ({
     Velocidade: {
       value: 'Normal',
       options: ['Parado', 'Devagar', 'Normal', 'Rápido', 'Super Rápido'],
+    },
+    Modo: {
+      value: 'Real',
+      options: ['Real', 'Lúdico'],
+      label: 'Órbitas',
     },
   }))
 
@@ -62,6 +68,7 @@ function SceneContent() {
     'Super Rápido': 8,
   }
   setSimulationSpeed(speedMap[Velocidade] ?? 1)
+  setOrbitMode(Modo === 'Lúdico' ? 'ludico' : 'real')
   setBackgroundMusicVolume(Volume)
 
   return (

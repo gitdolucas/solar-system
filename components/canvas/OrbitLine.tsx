@@ -7,9 +7,11 @@ import * as THREE from 'three'
 interface OrbitLineProps {
   radius: number
   segments?: number
+  selected?: boolean
+  hovered?: boolean
 }
 
-export function OrbitLine({ radius, segments = 128 }: OrbitLineProps) {
+export function OrbitLine({ radius, segments = 128, selected = false, hovered = false }: OrbitLineProps) {
   const points = useMemo(() => {
     const pts: THREE.Vector3[] = []
     for (let i = 0; i <= segments; i++) {
@@ -19,13 +21,17 @@ export function OrbitLine({ radius, segments = 128 }: OrbitLineProps) {
     return pts
   }, [radius, segments])
 
+  const lineWidth = selected ? 2.0 : hovered ? 1.2 : 0.5
+  const opacity = selected ? 0.55 : hovered ? 0.3 : 0.07
+  const color = selected ? '#a0c8ff' : '#ffffff'
+
   return (
     <Line
       points={points}
-      color="#ffffff"
-      lineWidth={0.5}
+      color={color}
+      lineWidth={lineWidth}
       transparent
-      opacity={0.07}
+      opacity={opacity}
     />
   )
 }

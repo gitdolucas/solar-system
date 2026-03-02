@@ -14,6 +14,8 @@ export interface PlanetData {
   orbitRadius: number
   orbitSpeed: number
   selfRotationSpeed: number
+  /** Orbital inclination relative to ecliptic plane, in radians. Used in Lúdico mode. */
+  orbitInclination?: number
   size: number
   tilt: number
   hasRings: boolean
@@ -68,6 +70,8 @@ export interface SelectedBody {
   id: string
 }
 
+export type OrbitMode = 'real' | 'ludico'
+
 export interface SolarStoreState {
   selectedBody: SelectedBody | null
   /** The body selected before the current one — used for back-navigation (e.g. moon → planet) */
@@ -82,6 +86,8 @@ export interface SolarStoreState {
   clearSelection: () => void
   simulationSpeed: number
   setSimulationSpeed: (speed: number) => void
+  orbitMode: OrbitMode
+  setOrbitMode: (mode: OrbitMode) => void
   backgroundMusicPlaying: boolean
   backgroundMusicVolume: number
   setBackgroundMusicPlaying: (playing: boolean) => void

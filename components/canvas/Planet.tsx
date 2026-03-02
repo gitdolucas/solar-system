@@ -52,10 +52,14 @@ export const Planet = memo(function Planet({ data, moons }: PlanetProps) {
   }, [data.id, refsMap])
 
   useFrame((_, delta) => {
-    const speed = useSolarStore.getState().simulationSpeed
-    const dt = delta * speed
+    const { simulationSpeed, orbitMode } = useSolarStore.getState()
+    const dt = delta * simulationSpeed
     if (orbitGroupRef.current) {
       orbitGroupRef.current.rotation.y += data.orbitSpeed * dt * 0.04
+      // Smoothly lerp orbital inclination when mode changes
+      const targetInclination = orbitMode === 'ludico' ? (data.orbitInclination ?? 0) : 0
+      orbitGroupRef.current.rotation.x +=
+        (targetInclination - orbitGroupRef.current.rotation.x) * (1 - Math.exp(-4 * delta))
     }
     if (selfGroupRef.current) {
       selfGroupRef.current.rotation.y += data.selfRotationSpeed * dt * 0.3
@@ -64,9 +68,8 @@ export const Planet = memo(function Planet({ data, moons }: PlanetProps) {
 
   return (
     <>
-      <OrbitLine radius={data.orbitRadius} />
-
       <group ref={orbitGroupRef}>
+        <OrbitLine radius={data.orbitRadius} selected={isSelected} hovered={isHovered} />
         <group ref={selfGroupRef} position={[data.orbitRadius, 0, 0]}>
           <mesh
             castShadow

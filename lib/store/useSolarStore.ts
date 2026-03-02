@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { SolarStoreState, SelectedBody, SelectedBodyType } from '@/lib/types'
+import type { SolarStoreState, SelectedBody, SelectedBodyType, OrbitMode } from '@/lib/types'
 
 export const useSolarStore = create<SolarStoreState>((set, get) => ({
   selectedBody: null,
@@ -30,6 +30,9 @@ export const useSolarStore = create<SolarStoreState>((set, get) => ({
 
   simulationSpeed: 1,
   setSimulationSpeed: (speed: number) => set({ simulationSpeed: speed }),
+
+  orbitMode: 'real' as OrbitMode,
+  setOrbitMode: (mode: OrbitMode) => set({ orbitMode: mode }),
 
   backgroundMusicPlaying: false,
   backgroundMusicVolume: 0.1,

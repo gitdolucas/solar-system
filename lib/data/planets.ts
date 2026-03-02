@@ -21,6 +21,7 @@ export const PLANETS: PlanetData[] = [
     selfRotationSpeed: 0.1,
     size: 0.6,
     tilt: 0.034,
+    orbitInclination: 1.05, // ~60° — dramatic for ludic mode (real: 7°)
     hasRings: false,
     moons: [],
     cor: '#b5b5b5',
@@ -45,6 +46,7 @@ export const PLANETS: PlanetData[] = [
     selfRotationSpeed: 0.04,
     size: 1.1,
     tilt: 3.096,
+    orbitInclination: 0.52, // ~30°
     hasRings: false,
     moons: [],
     cor: '#e8cda0',
@@ -68,6 +70,7 @@ export const PLANETS: PlanetData[] = [
     selfRotationSpeed: 0.5,
     size: 1.2,
     tilt: 0.41,
+    orbitInclination: 0, // ecliptic reference plane
     hasRings: false,
     moons: ['moon'],
     cor: '#4fa3e0',
@@ -93,6 +96,7 @@ export const PLANETS: PlanetData[] = [
     selfRotationSpeed: 0.45,
     size: 0.7,
     tilt: 0.44,
+    orbitInclination: -0.35, // ~-20°
     hasRings: false,
     moons: [],
     cor: '#c1440e',
@@ -117,6 +121,7 @@ export const PLANETS: PlanetData[] = [
     selfRotationSpeed: 1.2,
     size: 4.0,
     tilt: 0.054,
+    orbitInclination: 0.26, // ~15°
     hasRings: false,
     moons: ['io', 'europa', 'ganymede', 'callisto'],
     cor: '#c88b3a',
@@ -141,6 +146,7 @@ export const PLANETS: PlanetData[] = [
     selfRotationSpeed: 1.14, // ~10h33min day (24/10.55 ≈ 2.27× Earth; 0.5×2.27)
     size: 3.5,
     tilt: 0.47,
+    orbitInclination: -0.52, // ~-30°
     hasRings: true,
     ringTexture: '/textures/saturn_ring.png',
     ringInnerRadius: 4.5,
@@ -168,6 +174,7 @@ export const PLANETS: PlanetData[] = [
     selfRotationSpeed: 0.7,
     size: 2.2,
     tilt: 1.71,
+    orbitInclination: 0.70, // ~40°
     hasRings: true,
     ringTexture: '/textures/placeholder.png',
     ringInnerRadius: 2.8,
@@ -197,6 +204,7 @@ export const PLANETS: PlanetData[] = [
     selfRotationSpeed: 0.67,
     size: 2.1,
     tilt: 0.49,
+    orbitInclination: -0.80, // ~-46°
     hasRings: false,
     moons: ['triton'],
     cor: '#5b7fde',
