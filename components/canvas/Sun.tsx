@@ -38,6 +38,7 @@ function SunMaterial({ opacityRef }: { opacityRef: React.RefObject<number> }) {
 
   useFrame(() => {
     if (material.uniforms.uOpacity) {
+      // eslint-disable-next-line react-hooks/immutability
       material.uniforms.uOpacity.value = opacityRef.current
     }
   })
@@ -100,6 +101,7 @@ export function Sun() {
 
     const opacity = opacityRef.current
     if (plasmaMaterial.uniforms.uOpacity) {
+      // eslint-disable-next-line react-hooks/immutability
       plasmaMaterial.uniforms.uOpacity.value = opacity
     }
     if (glowMatRef.current) {

@@ -282,6 +282,18 @@ export function SplashScreen({ texturesLoading }: { texturesLoading: boolean }) 
             Clique para iniciar
           </p>
         </div>
+
+        {/* Dedication */}
+        <p style={{
+          fontFamily: 'var(--font-pacifico)',
+          fontSize: 'clamp(0.9rem, 2vw, 1.05rem)',
+          color: 'rgba(255,255,255,0.6)',
+          margin: '32px 0 0',
+          fontStyle: 'italic',
+          letterSpacing: '0.02em',
+        }}>
+          Com amor, de papai para Ícaro.
+        </p>
       </div>
 
       {/* Loading indicator bottom — only shown while textures are actually loading */}
@@ -390,20 +402,21 @@ export function SplashScreen({ texturesLoading }: { texturesLoading: boolean }) 
 
 // Purely decorative static star field
 function StarField() {
-  const stars = useRef(
-    Array.from({ length: 160 }, (_, i) => ({
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      size: Math.random() * 1.6 + 0.4,
-      opacity: Math.random() * 0.5 + 0.15,
-      duration: Math.random() * 4 + 3,
-      delay: Math.random() * 5,
-    }))
+  const [stars] = useState(
+    () =>
+      Array.from({ length: 160 }, () => ({
+        x: Math.random() * 100,
+        y: Math.random() * 100,
+        size: Math.random() * 1.6 + 0.4,
+        opacity: Math.random() * 0.5 + 0.15,
+        duration: Math.random() * 4 + 3,
+        delay: Math.random() * 5,
+      }))
   )
 
   return (
     <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
-      {stars.current.map((s, i) => (
+      {stars.map((s, i) => (
         <div
           key={i}
           style={{
