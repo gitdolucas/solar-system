@@ -29,11 +29,10 @@ function SceneContent() {
   const setBackgroundMusicPlaying = useSolarStore((s) => s.setBackgroundMusicPlaying)
   const setBackgroundMusicVolume = useSolarStore((s) => s.setBackgroundMusicVolume)
 
-  const [{ Speed, Multiplier }] = useControls('Simulation', () => ({
-    Speed: { value: 1, min: 0, max: 10, step: 0.1 },
-    Multiplier: {
-      value: '×1',
-      options: ['×0.1', '×1', '×10', '×100'],
+  const [{ Velocidade }] = useControls('Simulação', () => ({
+    Velocidade: {
+      value: 'Normal',
+      options: ['Parado', 'Devagar', 'Normal', 'Rápido', 'Super Rápido'],
     },
   }))
 
@@ -54,9 +53,15 @@ function SceneContent() {
   )
   const Volume = musicControls.Volume
 
-  // Push combined value into store every render (no re-render cost inside useFrame)
-  const multiplierMap: Record<string, number> = { '×0.1': 0.1, '×1': 1, '×10': 10, '×100': 100 }
-  setSimulationSpeed(Speed * (multiplierMap[Multiplier] ?? 1))
+  // Push selected speed into store every render (no re-render cost inside useFrame)
+  const speedMap: Record<string, number> = {
+    Parado: 0,
+    Devagar: 0.25,
+    Normal: 1,
+    Rápido: 3,
+    'Super Rápido': 8,
+  }
+  setSimulationSpeed(speedMap[Velocidade] ?? 1)
   setBackgroundMusicVolume(Volume)
 
   return (
