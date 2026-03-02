@@ -2,9 +2,11 @@
 
 import dynamic from 'next/dynamic'
 import { useEffect, useState } from 'react'
+import { Leva } from 'leva'
 import * as THREE from 'three'
 import { HoverBalloon } from '@/components/ui/HoverBalloon'
 import { SplashScreen } from '@/components/ui/SplashScreen'
+import { LandscapePrompt } from '@/components/ui/LandscapePrompt'
 import { BackgroundMusicSource } from './BackgroundMusicSource'
 import { useSolarStore } from '@/lib/store/useSolarStore'
 
@@ -16,6 +18,7 @@ const Scene = dynamic(
 export function SceneClient() {
   const splashDismissed = useSolarStore((s) => s.splashDismissed)
   const [texturesLoading, setTexturesLoading] = useState(false)
+  const showLandscapePrompt = splashDismissed
 
   useEffect(() => {
     const manager = THREE.DefaultLoadingManager
@@ -45,9 +48,11 @@ export function SceneClient() {
 
   return (
     <>
+      <Leva collapsed />
       {splashDismissed && <Scene />}
       <BackgroundMusicSource />
       <HoverBalloon />
+      {showLandscapePrompt && <LandscapePrompt />}
       {!splashDismissed && <SplashScreen texturesLoading={texturesLoading} />}
     </>
   )

@@ -2,7 +2,7 @@
 
 import { useSolarStore } from '@/lib/store/useSolarStore'
 
-export function BackButton() {
+export function BackButton({ dense }: { dense?: boolean }) {
   const clearSelection = useSolarStore((s) => s.clearSelection)
   const previousBody = useSolarStore((s) => s.previousBody)
   const selectedBody = useSolarStore((s) => s.selectedBody)
@@ -19,15 +19,15 @@ export function BackButton() {
       style={{
         display: 'flex',
         alignItems: 'center',
-        gap: '6px',
-        padding: '5px 10px 5px 8px',
+        gap: dense ? '4px' : '6px',
+        padding: dense ? '3px 6px 3px 5px' : '5px 10px 5px 8px',
         background: 'rgba(100,180,255,0.07)',
         border: '1px solid rgba(100,180,255,0.2)',
         borderRadius: '4px',
         cursor: 'pointer',
         color: 'rgba(140,200,255,0.8)',
         fontFamily: 'monospace',
-        fontSize: '10px',
+        fontSize: dense ? '9px' : '10px',
         letterSpacing: '0.12em',
         textTransform: 'uppercase',
         transition: 'all 0.15s ease',
@@ -43,7 +43,7 @@ export function BackButton() {
         e.currentTarget.style.color = 'rgba(140,200,255,0.8)'
       }}
     >
-      <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+      <svg width={dense ? 8 : 10} height={dense ? 8 : 10} viewBox="0 0 10 10" fill="none" aria-hidden="true">
         <path d="M7 2L3 5L7 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
       {label}

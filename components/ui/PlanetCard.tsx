@@ -3,22 +3,24 @@
 import type { PlanetData } from '@/lib/types'
 import { MOONS } from '@/lib/data/moons'
 import { useSolarStore } from '@/lib/store/useSolarStore'
+import { useSidebarDense } from '@/lib/context/SidebarDenseContext'
 
 interface StatRowProps {
   label: string
   value: string
   icon: string
   accentColor: string
+  dense?: boolean
 }
 
-function StatRow({ label, value, icon, accentColor }: StatRowProps) {
+function StatRow({ label, value, icon, accentColor, dense }: StatRowProps) {
   return (
     <div
       style={{
         display: 'flex',
         alignItems: 'flex-start',
-        gap: '12px',
-        padding: '12px 14px',
+        gap: dense ? '8px' : '12px',
+        padding: dense ? '8px 10px' : '12px 14px',
         background: 'rgba(255,255,255,0.03)',
         border: `1px solid ${accentColor}20`,
         borderLeft: `2px solid ${accentColor}60`,
@@ -40,16 +42,16 @@ function StatRow({ label, value, icon, accentColor }: StatRowProps) {
         }}
       />
 
-      <span style={{ fontSize: '16px', flexShrink: 0, marginTop: '1px', lineHeight: 1 }}>{icon}</span>
+      <span style={{ fontSize: dense ? '14px' : '16px', flexShrink: 0, marginTop: '1px', lineHeight: 1 }}>{icon}</span>
       <div style={{ flex: 1, minWidth: 0 }}>
         <p
           style={{
             fontFamily: 'monospace',
-            fontSize: '9px',
+            fontSize: dense ? '8px' : '9px',
             color: `${accentColor}80`,
             letterSpacing: '0.18em',
             textTransform: 'uppercase',
-            marginBottom: '3px',
+            marginBottom: '2px',
           }}
         >
           {label}
@@ -57,7 +59,7 @@ function StatRow({ label, value, icon, accentColor }: StatRowProps) {
         <p
           style={{
             fontFamily: 'var(--font-ubuntu)',
-            fontSize: '15px',
+            fontSize: dense ? '13px' : '15px',
             fontWeight: 500,
             color: '#eaf2ff',
             margin: 0,
@@ -78,21 +80,21 @@ export function PlanetCard({ planet }: PlanetCardProps) {
   const selectBody = useSolarStore((s) => s.selectBody)
   const setHoveredBody = useSolarStore((s) => s.setHoveredBody)
   const setTooltipBody = useSolarStore((s) => s.setTooltipBody)
-
+  const dense = useSidebarDense()
   const planetMoons = MOONS.filter((m) => planet.moons.includes(m.id))
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: dense ? '14px' : '24px' }}>
 
       {/* Header */}
       <div>
         {/* Section tag */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
-          <div style={{ width: '16px', height: '1px', background: `${planet.cor}60` }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: dense ? '6px' : '8px', marginBottom: dense ? '8px' : '14px' }}>
+          <div style={{ width: dense ? '12px' : '16px', height: '1px', background: `${planet.cor}60` }} />
           <span
             style={{
               fontFamily: 'monospace',
-              fontSize: '10px',
+              fontSize: dense ? '9px' : '10px',
               color: `${planet.cor}80`,
               letterSpacing: '0.18em',
               textTransform: 'uppercase',
@@ -137,7 +139,7 @@ export function PlanetCard({ planet }: PlanetCardProps) {
         <h1
           style={{
             fontFamily: 'var(--font-pacifico)',
-            fontSize: '42px',
+            fontSize: dense ? '30px' : '42px',
             lineHeight: 1,
             color: planet.cor,
             textShadow: `0 0 40px ${planet.cor}50, 0 0 80px ${planet.cor}20`,
@@ -158,8 +160,8 @@ export function PlanetCard({ planet }: PlanetCardProps) {
       </div>
 
       {/* Stats */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: dense ? '4px' : '6px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: dense ? '6px' : '8px', marginBottom: dense ? '6px' : '8px' }}>
           <span
             style={{
               fontFamily: 'monospace',
@@ -173,18 +175,18 @@ export function PlanetCard({ planet }: PlanetCardProps) {
           </span>
           <div style={{ flex: 1, height: '1px', background: 'rgba(100,180,255,0.1)' }} />
         </div>
-        <StatRow icon="☀️" label="Distância do Sol" value={planet.distanciaDaSol} accentColor={planet.cor} />
-        <StatRow icon="🌍" label="Tamanho relativo" value={planet.tamanhoRelativo} accentColor={planet.cor} />
-        <StatRow icon="🌡️" label="Temperatura" value={planet.temperatura} accentColor={planet.cor} />
+        <StatRow icon="☀️" label="Distância do Sol" value={planet.distanciaDaSol} accentColor={planet.cor} dense={dense} />
+        <StatRow icon="🌍" label="Tamanho relativo" value={planet.tamanhoRelativo} accentColor={planet.cor} dense={dense} />
+        <StatRow icon="🌡️" label="Temperatura" value={planet.temperatura} accentColor={planet.cor} dense={dense} />
       </div>
 
       {/* Curiosidades */}
       <div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: dense ? '6px' : '8px', marginBottom: dense ? '8px' : '12px' }}>
           <span
             style={{
               fontFamily: 'monospace',
-              fontSize: '9px',
+              fontSize: dense ? '8px' : '9px',
               color: 'rgba(100,180,255,0.4)',
               letterSpacing: '0.18em',
               textTransform: 'uppercase',

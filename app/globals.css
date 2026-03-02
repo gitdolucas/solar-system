@@ -45,3 +45,8 @@ body,
   background: rgba(255, 255, 255, 0.15);
   border-radius: 2px;
 }
+
+/* Leva panel: slightly smaller font, starts collapsed via <Leva collapsed /> */
+#leva__root {
+  font-size: 12px;
+}

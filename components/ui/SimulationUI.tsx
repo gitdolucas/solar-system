@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import { Sidebar } from '@/components/ui/Sidebar'
-import { SubjectAudioPlayer } from '@/components/ui/SubjectAudioPlayer'
 import { useSolarStore } from '@/lib/store/useSolarStore'
 
 export function SimulationUI() {
@@ -16,16 +15,15 @@ export function SimulationUI() {
   if (!splashDismissed) return null
 
   return (
-    <>
-      <div style={{
-        transform: entered ? 'translateX(0)' : 'translateX(-360px)',
-        transition: 'transform 0.55s cubic-bezier(0.22, 1, 0.36, 1) 2s',
-        display: 'flex',
-        height: '100%',
-      }}>
-        <Sidebar />
-      </div>
-      <SubjectAudioPlayer />
-    </>
+    <div style={{
+      transform: entered ? 'translateX(0)' : 'translateX(-360px)',
+      transition: 'transform 0.55s cubic-bezier(0.22, 1, 0.36, 1) 2s',
+      display: 'flex',
+      height: '100%',
+      minHeight: 0,
+      overflow: 'hidden',
+    }}>
+      <Sidebar />
+    </div>
   )
 }

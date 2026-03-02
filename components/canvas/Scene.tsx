@@ -37,17 +37,21 @@ function SceneContent() {
   const setBackgroundMusicVolume = useSolarStore((s) => s.setBackgroundMusicVolume)
   const setIntroComplete = useSolarStore((s) => s.setIntroComplete)
 
-  const [{ Velocidade, Modo }, setLevaControls] = useControls('Simulação', () => ({
-    Velocidade: {
-      value: 'Devagar',
-      options: ['Parado', 'Devagar', 'Normal', 'Rápido', 'Super Rápido'],
-    },
-    Modo: {
-      value: 'Real',
-      options: ['Real', 'Lúdico'],
-      label: 'Órbitas',
-    },
-  }))
+  const [{ Velocidade, Modo }, setLevaControls] = useControls(
+    'Simulação',
+    () => ({
+      Velocidade: {
+        value: 'Devagar',
+        options: ['Parado', 'Devagar', 'Normal', 'Rápido', 'Super Rápido'],
+      },
+      Modo: {
+        value: 'Real',
+        options: ['Real', 'Lúdico'],
+        label: 'Órbitas',
+      },
+    }),
+    { collapsed: true }
+  )
 
   const [musicControls] = useControls(
     'Background Music',

@@ -1,20 +1,24 @@
+'use client'
+
 import type { MoonData } from '@/lib/types'
+import { useSidebarDense } from '@/lib/context/SidebarDenseContext'
 
 interface StatRowProps {
   label: string
   value: string
   icon: string
   accentColor: string
+  dense?: boolean
 }
 
-function StatRow({ label, value, icon, accentColor }: StatRowProps) {
+function StatRow({ label, value, icon, accentColor, dense }: StatRowProps) {
   return (
     <div
       style={{
         display: 'flex',
         alignItems: 'flex-start',
-        gap: '12px',
-        padding: '12px 14px',
+        gap: dense ? '8px' : '12px',
+        padding: dense ? '8px 10px' : '12px 14px',
         background: 'rgba(255,255,255,0.03)',
         border: `1px solid ${accentColor}20`,
         borderLeft: `2px solid ${accentColor}60`,
@@ -34,16 +38,16 @@ function StatRow({ label, value, icon, accentColor }: StatRowProps) {
           pointerEvents: 'none',
         }}
       />
-      <span style={{ fontSize: '16px', flexShrink: 0, marginTop: '1px', lineHeight: 1 }}>{icon}</span>
+      <span style={{ fontSize: dense ? '14px' : '16px', flexShrink: 0, marginTop: '1px', lineHeight: 1 }}>{icon}</span>
       <div style={{ flex: 1, minWidth: 0 }}>
         <p
           style={{
             fontFamily: 'monospace',
-            fontSize: '9px',
+            fontSize: dense ? '8px' : '9px',
             color: `${accentColor}80`,
             letterSpacing: '0.18em',
             textTransform: 'uppercase',
-            marginBottom: '3px',
+            marginBottom: '2px',
           }}
         >
           {label}
@@ -51,7 +55,7 @@ function StatRow({ label, value, icon, accentColor }: StatRowProps) {
         <p
           style={{
             fontFamily: 'var(--font-ubuntu)',
-            fontSize: '15px',
+            fontSize: dense ? '13px' : '15px',
             fontWeight: 500,
             color: '#eaf2ff',
             margin: 0,
@@ -69,17 +73,18 @@ interface MoonCardProps {
 }
 
 export function MoonCard({ moon }: MoonCardProps) {
+  const dense = useSidebarDense()
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: dense ? '14px' : '24px' }}>
 
       {/* Header */}
       <div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
-          <div style={{ width: '16px', height: '1px', background: `${moon.cor}60` }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: dense ? '6px' : '8px', marginBottom: dense ? '8px' : '14px' }}>
+          <div style={{ width: dense ? '12px' : '16px', height: '1px', background: `${moon.cor}60` }} />
           <span
             style={{
               fontFamily: 'monospace',
-              fontSize: '10px',
+              fontSize: dense ? '9px' : '10px',
               color: `${moon.cor}80`,
               letterSpacing: '0.18em',
               textTransform: 'uppercase',
@@ -108,7 +113,7 @@ export function MoonCard({ moon }: MoonCardProps) {
         <h1
           style={{
             fontFamily: 'var(--font-pacifico)',
-            fontSize: '40px',
+            fontSize: dense ? '28px' : '40px',
             lineHeight: 1,
             color: moon.cor,
             textShadow: `0 0 40px ${moon.cor}50, 0 0 80px ${moon.cor}20`,
@@ -143,7 +148,7 @@ export function MoonCard({ moon }: MoonCardProps) {
           </span>
           <div style={{ flex: 1, height: '1px', background: 'rgba(100,180,255,0.1)' }} />
         </div>
-        <StatRow icon="🌡️" label="Temperatura" value={moon.temperatura} accentColor={moon.cor} />
+        <StatRow icon="🌡️" label="Temperatura" value={moon.temperatura} accentColor={moon.cor} dense={dense} />
       </div>
 
       {/* Curiosidades */}

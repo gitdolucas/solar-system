@@ -2,24 +2,26 @@
 
 import { PLANETS } from '@/lib/data/planets'
 import { useSolarStore } from '@/lib/store/useSolarStore'
+import { useSidebarDense } from '@/lib/context/SidebarDenseContext'
 
 export function SystemInfo() {
   const selectBody = useSolarStore((s) => s.selectBody)
   const setHoveredBody = useSolarStore((s) => s.setHoveredBody)
   const setTooltipBody = useSolarStore((s) => s.setTooltipBody)
+  const dense = useSidebarDense()
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: dense ? '14px' : '28px' }}>
 
       {/* Hero section */}
       <div>
         {/* Section tag */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-          <div style={{ width: '16px', height: '1px', background: 'rgba(100,180,255,0.4)' }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: dense ? '6px' : '8px', marginBottom: dense ? '8px' : '12px' }}>
+          <div style={{ width: dense ? '12px' : '16px', height: '1px', background: 'rgba(100,180,255,0.4)' }} />
           <span
             style={{
               fontFamily: 'monospace',
-              fontSize: '10px',
+              fontSize: dense ? '9px' : '10px',
               color: 'rgba(100,180,255,0.5)',
               letterSpacing: '0.18em',
               textTransform: 'uppercase',
@@ -33,10 +35,10 @@ export function SystemInfo() {
         <h1
           style={{
             fontFamily: 'var(--font-pacifico)',
-            fontSize: '38px',
+            fontSize: dense ? '26px' : '38px',
             lineHeight: 1.1,
             color: '#f0f8ff',
-            marginBottom: '12px',
+            marginBottom: dense ? '8px' : '12px',
             textShadow: '0 0 40px rgba(100,180,255,0.2)',
           }}
         >
@@ -47,8 +49,8 @@ export function SystemInfo() {
         <p
           style={{
             fontFamily: 'var(--font-ubuntu)',
-            fontSize: '14px',
-            lineHeight: 1.7,
+            fontSize: dense ? '12px' : '14px',
+            lineHeight: 1.6,
             color: 'rgba(180,210,240,0.7)',
           }}
         >
@@ -61,7 +63,7 @@ export function SystemInfo() {
         style={{
           display: 'grid',
           gridTemplateColumns: '1fr 1fr 1fr',
-          gap: '8px',
+          gap: dense ? '6px' : '8px',
         }}
       >
         {[
@@ -72,7 +74,7 @@ export function SystemInfo() {
           <div
             key={label}
             style={{
-              padding: '12px 10px',
+              padding: dense ? '8px 6px' : '12px 10px',
               background: 'rgba(100,180,255,0.04)',
               border: '1px solid rgba(100,180,255,0.1)',
               borderRadius: '6px',
@@ -82,7 +84,7 @@ export function SystemInfo() {
             <div
               style={{
                 fontFamily: 'monospace',
-                fontSize: '20px',
+                fontSize: dense ? '16px' : '20px',
                 fontWeight: 700,
                 color: '#7ec8e3',
                 letterSpacing: '-0.02em',
@@ -94,11 +96,11 @@ export function SystemInfo() {
             <div
               style={{
                 fontFamily: 'monospace',
-                fontSize: '9px',
+                fontSize: dense ? '8px' : '9px',
                 color: 'rgba(100,180,255,0.4)',
                 letterSpacing: '0.12em',
                 textTransform: 'uppercase',
-                marginTop: '4px',
+                marginTop: dense ? '2px' : '4px',
               }}
             >
               {label}
@@ -109,12 +111,12 @@ export function SystemInfo() {
 
       {/* Planet list */}
       <div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
-          <div style={{ width: '16px', height: '1px', background: 'rgba(100,180,255,0.4)' }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: dense ? '6px' : '8px', marginBottom: dense ? '8px' : '14px' }}>
+          <div style={{ width: dense ? '12px' : '16px', height: '1px', background: 'rgba(100,180,255,0.4)' }} />
           <span
             style={{
               fontFamily: 'monospace',
-              fontSize: '10px',
+              fontSize: dense ? '9px' : '10px',
               color: 'rgba(100,180,255,0.5)',
               letterSpacing: '0.18em',
               textTransform: 'uppercase',
@@ -141,8 +143,8 @@ export function SystemInfo() {
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '12px',
-                padding: '10px 12px',
+                gap: dense ? '8px' : '12px',
+                padding: dense ? '6px 10px' : '10px 12px',
                 background: 'transparent',
                 border: '1px solid transparent',
                 borderRadius: '6px',
@@ -169,10 +171,10 @@ export function SystemInfo() {
               <span
                 style={{
                   fontFamily: 'monospace',
-                  fontSize: '10px',
+                  fontSize: dense ? '9px' : '10px',
                   color: 'rgba(100,180,255,0.25)',
                   letterSpacing: '0.06em',
-                  width: '16px',
+                  width: dense ? '14px' : '16px',
                   flexShrink: 0,
                 }}
               >
@@ -182,8 +184,8 @@ export function SystemInfo() {
               {/* Planet color dot with glow */}
               <div
                 style={{
-                  width: '10px',
-                  height: '10px',
+                  width: dense ? '8px' : '10px',
+                  height: dense ? '8px' : '10px',
                   borderRadius: '50%',
                   background: planet.cor,
                   boxShadow: `0 0 8px ${planet.cor}80`,
@@ -195,7 +197,7 @@ export function SystemInfo() {
               <span
                 style={{
                   fontFamily: 'var(--font-ubuntu)',
-                  fontSize: '15px',
+                  fontSize: dense ? '13px' : '15px',
                   fontWeight: 500,
                   color: '#ddeeff',
                   flex: 1,
@@ -239,7 +241,7 @@ export function SystemInfo() {
       {/* Hint card */}
       <div
         style={{
-          padding: '14px 16px',
+          padding: dense ? '10px 12px' : '14px 16px',
           background: 'rgba(245,166,35,0.06)',
           border: '1px solid rgba(245,166,35,0.2)',
           borderRadius: '6px',
@@ -248,17 +250,17 @@ export function SystemInfo() {
         }}
       >
         {/* Decorative corner */}
-        <div style={{ position: 'absolute', top: '8px', right: '8px', width: '12px', height: '12px' }}>
+        <div style={{ position: 'absolute', top: dense ? '6px' : '8px', right: dense ? '6px' : '8px', width: '12px', height: '12px' }}>
           <div style={{ position: 'absolute', top: 0, right: 0, width: '6px', height: '6px', borderTop: '1px solid rgba(245,166,35,0.4)', borderRight: '1px solid rgba(245,166,35,0.4)' }} />
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
-          <span style={{ fontSize: '14px', flexShrink: 0, marginTop: '1px' }}>✦</span>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: dense ? '8px' : '10px' }}>
+          <span style={{ fontSize: dense ? '12px' : '14px', flexShrink: 0, marginTop: '1px' }}>✦</span>
           <p
             style={{
               fontFamily: 'var(--font-ubuntu)',
-              fontSize: '13px',
-              lineHeight: 1.6,
+              fontSize: dense ? '11px' : '13px',
+              lineHeight: 1.5,
               color: 'rgba(245,200,80,0.8)',
               margin: 0,
             }}

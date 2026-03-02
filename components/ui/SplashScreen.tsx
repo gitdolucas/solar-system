@@ -407,18 +407,20 @@ function pseudoRandom(seed: number) {
 }
 
 // Purely decorative static star field — deterministic across server and client.
+// All numeric style values use fixed decimal places to avoid hydration mismatch
+// (server and client can serialize floats differently).
 function StarField() {
   const stars = useMemo(
     () =>
       Array.from({ length: 160 }, (_, i) => {
         const rand = (offset: number) => pseudoRandom(i * 7.13 + offset)
         return {
-          x: rand(0) * 100,
-          y: rand(1) * 100,
-          size: rand(2) * 1.6 + 0.4,
-          opacity: rand(3) * 0.5 + 0.15,
-          duration: rand(4) * 4 + 3,
-          delay: rand(5) * 5,
+          x: (rand(0) * 100).toFixed(4),
+          y: (rand(1) * 100).toFixed(4),
+          size: (rand(2) * 1.6 + 0.4).toFixed(4),
+          opacity: (rand(3) * 0.5 + 0.15).toFixed(6),
+          duration: (rand(4) * 4 + 3).toFixed(5),
+          delay: (rand(5) * 5).toFixed(6),
         }
       }),
     []
@@ -433,14 +435,14 @@ function StarField() {
             position: 'absolute',
             left: `${s.x}%`,
             top: `${s.y}%`,
-            width: `${s.size.toFixed(4)}px`,
-            height: `${s.size.toFixed(4)}px`,
+            width: `${s.size}px`,
+            height: `${s.size}px`,
             borderRadius: '50%',
             background: '#fff',
             // @ts-expect-error CSS custom property
-            '--star-base-opacity': `${s.opacity}`,
-            opacity: s.opacity.toFixed(6),
-            animation: `star-twinkle ${s.duration.toFixed(5)}s ease-in-out ${s.delay.toFixed(6)}s infinite`,
+            '--star-base-opacity': s.opacity,
+            opacity: s.opacity,
+            animation: `star-twinkle ${s.duration}s ease-in-out ${s.delay}s infinite`,
           }}
         />
       ))}

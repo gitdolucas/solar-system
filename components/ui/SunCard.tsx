@@ -1,4 +1,7 @@
+'use client'
+
 import type { SunData } from '@/lib/types'
+import { useSidebarDense } from '@/lib/context/SidebarDenseContext'
 
 const SUN_COLOR = '#f5a623'
 const SUN_GLOW = 'rgba(245,166,35,0.4)'
@@ -7,16 +10,17 @@ interface StatRowProps {
   label: string
   value: string
   icon: string
+  dense?: boolean
 }
 
-function StatRow({ label, value, icon }: StatRowProps) {
+function StatRow({ label, value, icon, dense }: StatRowProps) {
   return (
     <div
       style={{
         display: 'flex',
         alignItems: 'flex-start',
-        gap: '12px',
-        padding: '12px 14px',
+        gap: dense ? '8px' : '12px',
+        padding: dense ? '8px 10px' : '12px 14px',
         background: 'rgba(255,255,255,0.03)',
         border: `1px solid ${SUN_COLOR}20`,
         borderLeft: `2px solid ${SUN_COLOR}60`,
@@ -36,16 +40,16 @@ function StatRow({ label, value, icon }: StatRowProps) {
           pointerEvents: 'none',
         }}
       />
-      <span style={{ fontSize: '16px', flexShrink: 0, marginTop: '1px', lineHeight: 1 }}>{icon}</span>
+      <span style={{ fontSize: dense ? '14px' : '16px', flexShrink: 0, marginTop: '1px', lineHeight: 1 }}>{icon}</span>
       <div style={{ flex: 1, minWidth: 0 }}>
         <p
           style={{
             fontFamily: 'monospace',
-            fontSize: '9px',
+            fontSize: dense ? '8px' : '9px',
             color: `${SUN_COLOR}80`,
             letterSpacing: '0.18em',
             textTransform: 'uppercase',
-            marginBottom: '3px',
+            marginBottom: '2px',
           }}
         >
           {label}
@@ -53,7 +57,7 @@ function StatRow({ label, value, icon }: StatRowProps) {
         <p
           style={{
             fontFamily: 'var(--font-ubuntu)',
-            fontSize: '15px',
+            fontSize: dense ? '13px' : '15px',
             fontWeight: 500,
             color: '#eaf2ff',
             margin: 0,
@@ -71,18 +75,19 @@ interface SunCardProps {
 }
 
 export function SunCard({ sun }: SunCardProps) {
+  const dense = useSidebarDense()
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: dense ? '14px' : '24px' }}>
 
       {/* Header */}
       <div>
         {/* Section tag */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
-          <div style={{ width: '16px', height: '1px', background: `${SUN_COLOR}60` }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: dense ? '6px' : '8px', marginBottom: dense ? '8px' : '14px' }}>
+          <div style={{ width: dense ? '12px' : '16px', height: '1px', background: `${SUN_COLOR}60` }} />
           <span
             style={{
               fontFamily: 'monospace',
-              fontSize: '10px',
+              fontSize: dense ? '9px' : '10px',
               color: `${SUN_COLOR}80`,
               letterSpacing: '0.18em',
               textTransform: 'uppercase',
@@ -125,7 +130,7 @@ export function SunCard({ sun }: SunCardProps) {
         <h1
           style={{
             fontFamily: 'var(--font-pacifico)',
-            fontSize: '42px',
+            fontSize: dense ? '30px' : '42px',
             lineHeight: 1,
             color: SUN_COLOR,
             textShadow: `0 0 40px ${SUN_GLOW}, 0 0 80px rgba(245,166,35,0.15)`,
@@ -161,10 +166,10 @@ export function SunCard({ sun }: SunCardProps) {
           <div style={{ flex: 1, height: '1px', background: 'rgba(100,180,255,0.1)' }} />
         </div>
 
-        <StatRow icon="📏" label="Diâmetro" value={sun.diametro} />
-        <StatRow icon="⚖️" label="Massa" value={sun.massa} />
-        <StatRow icon="🌡️" label="Temperatura" value={sun.temperatura} />
-        <StatRow icon="🕰️" label="Idade" value={sun.idade} />
+        <StatRow icon="📏" label="Diâmetro" value={sun.diametro} dense={dense} />
+        <StatRow icon="⚖️" label="Massa" value={sun.massa} dense={dense} />
+        <StatRow icon="🌡️" label="Temperatura" value={sun.temperatura} dense={dense} />
+        <StatRow icon="🕰️" label="Idade" value={sun.idade} dense={dense} />
       </div>
 
       {/* Curiosidades */}
