@@ -114,7 +114,13 @@ function SolarDiagram() {
   )
 }
 
-export function SplashScreen({ texturesLoading }: { texturesLoading: boolean }) {
+export function SplashScreen({
+  texturesLoading,
+  onDismiss,
+}: {
+  texturesLoading: boolean
+  onDismiss?: () => void
+}) {
   const dismissSplash = useSolarStore((s) => s.dismissSplash)
   const setBackgroundMusicPlaying = useSolarStore((s) => s.setBackgroundMusicPlaying)
 
@@ -135,13 +141,18 @@ export function SplashScreen({ texturesLoading }: { texturesLoading: boolean }) 
     return () => clearInterval(id)
   }, [])
 
-  const handleClick = useCallback((e: React.MouseEvent) => {
-    if (exiting) return
-    setRipple({ x: e.clientX, y: e.clientY })
-    setExiting(true)
-    setBackgroundMusicPlaying(true)
-    setTimeout(() => dismissSplash(), 900)
-  }, [exiting, dismissSplash, setBackgroundMusicPlaying])
+  const handleClick = useCallback(
+    (e: React.MouseEvent) => {
+      if (exiting) return
+      setRipple({ x: e.clientX, y: e.clientY })
+      setExiting(true)
+      setBackgroundMusicPlaying(true)
+      setTimeout(() => {
+        onDismiss?.() ?? dismissSplash()
+      }, 900)
+    },
+    [exiting, dismissSplash, setBackgroundMusicPlaying, onDismiss]
+  )
 
   return (
     <div

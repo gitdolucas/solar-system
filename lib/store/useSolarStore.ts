@@ -1,3 +1,4 @@
+import { track } from '@vercel/analytics'
 import { create } from 'zustand'
 import type { SolarStoreState, SelectedBody, SelectedBodyType, OrbitMode } from '@/lib/types'
 
@@ -7,13 +8,15 @@ export const useSolarStore = create<SolarStoreState>((set, get) => ({
   hoveredBody: null,
   tooltipBody: null,
 
-  selectBody: (type: SelectedBodyType, id: string) =>
-    set((state) => ({
+  selectBody: (type: SelectedBodyType, id: string) => {
+    track('simulation_select', { type, id })
+    return set((state) => ({
       previousBody: state.selectedBody,
       selectedBody: { type, id },
       hoveredBody: null,
       tooltipBody: null,
-    })),
+    }))
+  },
 
   setHoveredBody: (body: SelectedBody | null) => set({ hoveredBody: body }),
 

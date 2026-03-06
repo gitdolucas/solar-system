@@ -1,6 +1,7 @@
 'use client'
 
 import dynamic from 'next/dynamic'
+import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { Leva } from 'leva'
 import * as THREE from 'three'
@@ -16,11 +17,18 @@ const Scene = dynamic(
 )
 
 export function SceneClient() {
-  const splashDismissed = useSolarStore((s) => s.splashDismissed)
+  const pathname = usePathname()
+  const router = useRouter()
+  const isSimulationRoute = pathname === '/simulation'
   const [texturesLoading, setTexturesLoading] = useState(false)
-  const showLandscapePrompt = splashDismissed
+  const dismissSplash = useSolarStore((s) => s.dismissSplash)
 
   useEffect(() => {
+    if (isSimulationRoute) dismissSplash()
+  }, [isSimulationRoute, dismissSplash])
+
+  useEffect(() => {
+    if (!isSimulationRoute) return
     const manager = THREE.DefaultLoadingManager
     const prevStart = manager.onStart
     const prevLoad = manager.onLoad
@@ -44,16 +52,28 @@ export function SceneClient() {
       manager.onLoad = prevLoad
       manager.onError = prevError
     }
-  }, [])
+  }, [isSimulationRoute])
+
+  if (isSimulationRoute) {
+    return (
+      <>
+        <Leva collapsed />
+        <Scene />
+        <BackgroundMusicSource />
+        <HoverBalloon />
+        <LandscapePrompt />
+      </>
+    )
+  }
 
   return (
     <>
       <Leva collapsed />
-      {splashDismissed && <Scene />}
       <BackgroundMusicSource />
-      <HoverBalloon />
-      {showLandscapePrompt && <LandscapePrompt />}
-      {!splashDismissed && <SplashScreen texturesLoading={texturesLoading} />}
+      <SplashScreen
+        texturesLoading={texturesLoading}
+        onDismiss={() => router.push('/simulation')}
+      />
     </>
   )
 }
