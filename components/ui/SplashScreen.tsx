@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback, useMemo } from 'react'
 import { useSolarStore } from '@/lib/store/useSolarStore'
+import { PORTFOLIO_URL } from '@/lib/constants'
 
 const FACTS = [
   'O Sol contém 99,86% de toda a massa do Sistema Solar.',
@@ -306,6 +307,36 @@ export function SplashScreen({
           Com amor, de papai para Ícaro.
         </p>
       </div>
+
+      {/* Portfolio CTA — bottom right, subtle */}
+      <a
+        href={PORTFOLIO_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          position: 'absolute',
+          right: 20,
+          bottom: 20,
+          zIndex: 5,
+          fontFamily: 'var(--font-ubuntu)',
+          fontSize: '0.72rem',
+          color: 'rgba(143,163,184,0.7)',
+          letterSpacing: '0.12em',
+          textTransform: 'uppercase',
+          textDecoration: 'none',
+          fontWeight: 400,
+          transition: 'color 0.2s ease',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.color = 'rgba(245,166,35,0.85)'
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.color = 'rgba(143,163,184,0.7)'
+        }}
+      >
+        Portfolio
+      </a>
 
       {/* Loading indicator bottom — only shown while textures are actually loading */}
       {texturesLoading && (
